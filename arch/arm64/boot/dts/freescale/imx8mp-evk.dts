@@ -845,8 +845,8 @@
 	adp-disable;
 	usb-role-switch;
 	role-switch-default-mode = "none";
-	snps,dis-u1-entry-quirk;
-	snps,dis-u2-entry-quirk;
+	snps,dis-u1-entry-quirk;		// U1 mode disabled, power-saving mode 1
+	snps,dis-u2-entry-quirk;		// U2 mode disabled, power-saving mode 2
 	status = "okay";
 
 	port {

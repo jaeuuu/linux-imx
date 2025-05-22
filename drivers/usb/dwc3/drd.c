@@ -574,10 +574,13 @@ static int dwc3_setup_role_switch(struct dwc3 *dwc)
 int dwc3_drd_init(struct dwc3 *dwc)
 {
 	int ret, irq;
-
+/*
 	if (ROLE_SWITCH &&
 	    device_property_read_bool(dwc->dev, "usb-role-switch"))
 		return dwc3_setup_role_switch(dwc);
+*/
+
+	dev_err(dwc->dev, "dwc3 drd init\n");
 
 	dwc->edev = dwc3_get_extcon(dwc);
 	if (IS_ERR(dwc->edev))
@@ -587,6 +590,7 @@ int dwc3_drd_init(struct dwc3 *dwc)
 		dwc->edev_nb.notifier_call = dwc3_drd_notifier;
 		ret = extcon_register_notifier(dwc->edev, EXTCON_USB_HOST,
 					       &dwc->edev_nb);
+		dev_err(dwc->dev, "dwc3 callback registerd for extcon\n");
 		if (ret < 0) {
 			dev_err(dwc->dev, "couldn't register cable notifier\n");
 			return ret;
