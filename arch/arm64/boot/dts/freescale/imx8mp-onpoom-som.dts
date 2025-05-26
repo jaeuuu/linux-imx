@@ -179,8 +179,9 @@
 
 	ptn5150: tcpc@3d {
 		compatible = "nxp,ptn5150";
-		pinctrl-names = "default";
+		pinctrl-names = "default", "vbus_gpio";
 		pinctrl-0 = <&pinctrl_typec>;
+		pinctrl-1 = <&pinctrl_usb1_vbus_gpio>;
 		reg = <0x3d>;
 		/*
 		 * Set gpio1-io9 pin to int pin.
@@ -192,6 +193,8 @@
 		interrupt-parent = <&gpio1>;
 		//interrupts = <9 8>;
 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
+		vbus-gpios = <&gpio1 12 GPIO_ACTIVE_HIGH>;
+
 		port {
 			typec_dr_sw: endpoint {
 				remote-endpoint = <&usb3_drd_sw>;
@@ -230,8 +233,8 @@
 	hnp-disable;
 	srp-disable;
 	adp-disable;
-	usb-role-switch;
-	role-switch-default-mode = "none";
+	//usb-role-switch;
+	//role-switch-default-mode = "none";
 	snps,dis-u1-entry-quirk;
 	snps,dis-u2-entry-quirk;
 	status = "okay";
@@ -288,6 +291,12 @@
 		fsl,pins = <
 			MX8MP_IOMUXC_I2C2_SCL__I2C2_SCL		0x400001c2
 			MX8MP_IOMUXC_I2C2_SDA__I2C2_SDA		0x400001c2
+		>;
+	};
+
+	pinctrl_usb1_vbus_gpio: reg_usb1_gpiogrp {
+		fsl,pins = <
+			MX8MP_IOMUXC_GPIO1_IO12__GPIO1_IO12 0x10
 		>;
 	};
 
