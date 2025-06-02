@@ -110,11 +110,13 @@ int fwnode_mdiobus_register_phy(struct mii_bus *bus,
 	else
 		phy = phy_device_create(bus, addr, phy_id, 0, NULL);
 	if (IS_ERR(phy)) {
+		dev_err(&bus->dev, "phy_device_create() error!\n");
 		unregister_mii_timestamper(mii_ts);
 		return PTR_ERR(phy);
 	}
 
 	if (is_acpi_node(child)) {
+		dev_err(&bus->dev, "is_acpi_node() in\n");
 		phy->irq = bus->irq[addr];
 
 		/* Associate the fwnode with the device structure so it
@@ -125,13 +127,16 @@ int fwnode_mdiobus_register_phy(struct mii_bus *bus,
 		/* All data is now stored in the phy struct, so register it */
 		rc = phy_device_register(phy);
 		if (rc) {
+			dev_err(&bus->dev, "phy_device_register() error, ret=%d\n", rc);
 			phy_device_free(phy);
 			fwnode_handle_put(phy->mdio.dev.fwnode);
 			return rc;
 		}
 	} else if (is_of_node(child)) {
+		dev_err(&bus->dev, "is_of_node() in\n");
 		rc = fwnode_mdiobus_phy_device_register(bus, phy, child, addr);
 		if (rc) {
+			dev_err(&bus->dev, "fwnode_mdiobus_phy_device_register() error, ret=%d\n", rc);
 			unregister_mii_timestamper(mii_ts);
 			phy_device_free(phy);
 			return rc;

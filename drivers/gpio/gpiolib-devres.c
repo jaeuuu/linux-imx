@@ -12,6 +12,7 @@
 #include <linux/gpio/consumer.h>
 #include <linux/device.h>
 #include <linux/gfp.h>
+#include <linux/printk.h>
 
 #include "gpiolib.h"
 
@@ -246,8 +247,11 @@ struct gpio_desc *__must_check devm_gpiod_get_index_optional(struct device *dev,
 	struct gpio_desc *desc;
 
 	desc = devm_gpiod_get_index(dev, con_id, index, flags);
-	if (gpiod_not_found(desc))
+	if (gpiod_not_found(desc)) {
+		pr_err("gpiod_not_found() not found.\n");
 		return NULL;
+	}
+	pr_err("devm_gpiod_get_index() found. addr=%p\n", desc);
 
 	return desc;
 }

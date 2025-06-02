@@ -172,8 +172,10 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
 
 	/* Register the MDIO bus */
 	rc = mdiobus_register(mdio);
-	if (rc)
+	if (rc) {
+		dev_err(&mdio->dev, "mdiobus_register() ret=%d debugged by ojw\n", rc);
 		return rc;
+	}
 
 	/* Loop over the child nodes and register a phy_device for each phy */
 	for_each_available_child_of_node(np, child) {
@@ -183,9 +185,10 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
 			continue;
 		}
 
-		if (of_mdiobus_child_is_phy(child))
+		if (of_mdiobus_child_is_phy(child)) {
 			rc = of_mdiobus_register_phy(mdio, child, addr);
-		else
+			dev_err(&mdio->dev, "of_mdiobus_register_phy() ret=%d debugged by ojw\n", rc);
+		} else
 			rc = of_mdiobus_register_device(mdio, child, addr);
 
 		if (rc == -ENODEV)
@@ -284,8 +287,10 @@ struct phy_device *of_phy_connect(struct net_device *dev,
 	struct phy_device *phy = of_phy_find_device(phy_np);
 	int ret;
 
-	if (!phy)
+	if (!phy) {
+		netdev_err(dev, "ethernet phy is null... debugged by ojw\n");
 		return NULL;
+	}
 
 	phy->dev_flags |= flags;
 

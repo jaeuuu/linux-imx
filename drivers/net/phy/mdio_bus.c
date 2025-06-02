@@ -521,6 +521,8 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
 	int i, err;
 	struct gpio_desc *gpiod;
 
+	pr_err("__mdiobus_register() in0 debugged by ojw\n");
+
 	if (NULL == bus || NULL == bus->name ||
 	    NULL == bus->read || NULL == bus->write)
 		return -EINVAL;
@@ -538,6 +540,7 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
 	bus->dev.groups = NULL;
 	dev_set_name(&bus->dev, "%s", bus->id);
 
+	pr_err("__mdiobus_register() in1 debugged by ojw\n");
 	/* We need to set state to MDIOBUS_UNREGISTERED to correctly release
 	 * the device in mdiobus_free()
 	 *
@@ -554,15 +557,21 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
 	mutex_init(&bus->mdio_lock);
 	mutex_init(&bus->shared_lock);
 
+	pr_err("__mdiobus_register() in2 debugged by ojw\n");
+
 	/* assert bus level PHY GPIO reset */
-	gpiod = devm_gpiod_get_optional(&bus->dev, "reset", GPIOD_OUT_HIGH);
+	//gpiod = devm_gpiod_get_optional(&bus->dev, "reset", GPIOD_OUT_HIGH);
+	gpiod = devm_gpiod_get_optional(&bus->dev, "reset", GPIOD_OUT_LOW);
 	if (IS_ERR(gpiod)) {
+		pr_err("devm_gpiod_get_optional() error debugged by ojw\n");
 		err = dev_err_probe(&bus->dev, PTR_ERR(gpiod),
 				    "mii_bus %s couldn't get reset GPIO\n",
 				    bus->id);
 		device_del(&bus->dev);
 		return err;
-	} else	if (gpiod) {
+	} else if (gpiod) {
+		pr_err("devm_gpiod_get_optional() gpiod probed debugged by ojw\n");
+		dev_err(&bus->dev, "gpiod probed\n");
 		bus->reset_gpiod = gpiod;
 		fsleep(bus->reset_delay_us);
 		gpiod_set_value_cansleep(gpiod, 0);
@@ -591,10 +600,13 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
 	mdiobus_setup_mdiodev_from_board_info(bus, mdiobus_create_device);
 
 	bus->state = MDIOBUS_REGISTERED;
-	dev_dbg(&bus->dev, "probed\n");
+	pr_err("mdiobus probed!!\n");
+	dev_err(&bus->dev, "mdiobus probed\n");
 	return 0;
 
 error:
+	pr_err("in goto error\n");
+	dev_err(&bus->dev, "in goto error\n");
 	while (--i >= 0) {
 		mdiodev = bus->mdio_map[i];
 		if (!mdiodev)
@@ -604,6 +616,8 @@ error:
 		mdiodev->device_free(mdiodev);
 	}
 error_reset_gpiod:
+	pr_err("in goto error_reset_gpiod\n");
+	dev_err(&bus->dev, "in goto error_reset_gpiod\n");
 	/* Put PHYs in RESET to save power */
 	if (bus->reset_gpiod)
 		gpiod_set_value_cansleep(bus->reset_gpiod, 1);
@@ -697,9 +711,11 @@ struct phy_device *mdiobus_scan(struct mii_bus *bus, int addr)
 		break;
 	}
 
+	pr_err("pre IS_ERR(phydev)\n");
 	if (IS_ERR(phydev))
 		return phydev;
 
+	pr_err("pro IS_ERR(phydev)\n");
 	/*
 	 * For DT, see if the auto-probed phy has a correspoding child
 	 * in the bus node, and set the of_node pointer in this case.
@@ -708,6 +724,7 @@ struct phy_device *mdiobus_scan(struct mii_bus *bus, int addr)
 
 	err = phy_device_register(phydev);
 	if (err) {
+		pr_err("phy_device_register() fail err=%d\n", err);
 		phy_device_free(phydev);
 		return ERR_PTR(-ENODEV);
 	}

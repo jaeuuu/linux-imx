@@ -194,8 +194,10 @@ static struct property *__of_find_property(const struct device_node *np,
 {
 	struct property *pp;
 
-	if (!np)
+	if (!np) {
+		pr_err("[%s] __of_find_property() np is null...\n", name);
 		return NULL;
+	}
 
 	for (pp = np->properties; pp; pp = pp->next) {
 		if (of_prop_cmp(pp->name, name) == 0) {
@@ -1255,8 +1257,10 @@ int of_phandle_iterator_init(struct of_phandle_iterator *it,
 		return -EINVAL;
 
 	list = of_get_property(np, list_name, &size);
-	if (!list)
+	if (!list) {
+		pr_err("[%s][%s] of_get_property() in of_phandle_iterator_init()\n", np->name, list_name);
 		return -ENOENT;
+	}
 
 	it->cells_name = cells_name;
 	it->cell_count = cell_count;
@@ -1390,9 +1394,12 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 		 */
 		rc = -ENOENT;
 		if (cur_index == index) {
-			if (!it.phandle)
+			if (!it.phandle) {
+				pr_err("[%s] not found it.phandle\n", list_name);
 				goto err;
+			}
 
+			pr_err("[%s] found it.phandle\n", list_name);
 			if (out_args) {
 				int c;
 
@@ -1401,6 +1408,7 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
 							     MAX_PHANDLE_ARGS);
 				out_args->np = it.node;
 				out_args->args_count = c;
+				pr_err("[%s] out_args count=%d", list_name, out_args->args_count);
 			} else {
 				of_node_put(it.node);
 			}
@@ -1561,32 +1569,44 @@ int of_parse_phandle_with_args_map(const struct device_node *np,
 		return -EINVAL;
 
 	cells_name = kasprintf(GFP_KERNEL, "#%s-cells", stem_name);
-	if (!cells_name)
+	if (!cells_name) {
+		pr_err("kasprintf() cells_name fail ret=%d\n", ret);
 		return -ENOMEM;
+	}
 
 	ret = -ENOMEM;
 	map_name = kasprintf(GFP_KERNEL, "%s-map", stem_name);
-	if (!map_name)
+	if (!map_name) {
+		pr_err("kasprintf() map_name fail ret=%d\n", ret);
 		goto free;
+	}
 
 	mask_name = kasprintf(GFP_KERNEL, "%s-map-mask", stem_name);
-	if (!mask_name)
+	if (!mask_name) {
+		pr_err("kasprintf() mask_name fail ret=%d\n", ret);
 		goto free;
+	}
 
 	pass_name = kasprintf(GFP_KERNEL, "%s-map-pass-thru", stem_name);
-	if (!pass_name)
+	if (!pass_name) {
+		pr_err("kasprintf() pass_name fail ret=%d\n", ret);
 		goto free;
+	}
 
 	ret = __of_parse_phandle_with_args(np, list_name, cells_name, -1, index,
 					   out_args);
-	if (ret)
+	if (ret) {
+		pr_err("__of_parse_phandle_with_args() fail ret=%d\n", ret);
 		goto free;
+	}
 
 	/* Get the #<list>-cells property */
 	cur = out_args->np;
 	ret = of_property_read_u32(cur, cells_name, &list_size);
-	if (ret < 0)
+	if (ret < 0) {
+		pr_err("of_property_read_u32() fail ret=%d\n", ret);
 		goto put;
+	}
 
 	/* Precalculate the match array - this simplifies match loop */
 	for (i = 0; i < list_size; i++)
@@ -1598,6 +1618,7 @@ int of_parse_phandle_with_args_map(const struct device_node *np,
 		map = of_get_property(cur, map_name, &map_len);
 		if (!map) {
 			ret = 0;
+			pr_err("of_get_property() fail\n");
 			goto free;
 		}
 		map_len /= sizeof(u32);
@@ -1627,8 +1648,10 @@ int of_parse_phandle_with_args_map(const struct device_node *np,
 				match = 0;
 
 			ret = of_property_read_u32(new, cells_name, &new_size);
-			if (ret)
+			if (ret) {
+				pr_err("of_property_read_u32() fail line1644\n");
 				goto put;
+			}
 
 			/* Check for malformed properties */
 			if (WARN_ON(new_size > MAX_PHANDLE_ARGS))

@@ -3893,13 +3893,15 @@ struct gpio_desc *__must_check gpiod_get_index(struct device *dev,
 	const char *devname = dev ? dev_name(dev) : "?";
 	const struct fwnode_handle *fwnode = dev ? dev_fwnode(dev) : NULL;
 
-	dev_dbg(dev, "GPIO lookup for consumer %s\n", con_id);
-
+	dev_err(dev, "GPIO lookup for consumer %s\n", con_id);
+	pr_err("gpiod_request() fail \n");
 	/* Using device tree? */
 	if (is_of_node(fwnode)) {
+		dev_err(dev, "is_of_node() %s\n", con_id);
 		dev_dbg(dev, "using device tree for GPIO lookup\n");
 		desc = of_find_gpio(dev, con_id, idx, &lookupflags);
 	} else if (is_acpi_node(fwnode)) {
+		dev_err(dev, "is_acpi_node() %s\n", con_id);
 		dev_dbg(dev, "using ACPI for GPIO lookup\n");
 		desc = acpi_find_gpio(dev, con_id, idx, &flags, &lookupflags);
 	}
@@ -3910,10 +3912,12 @@ struct gpio_desc *__must_check gpiod_get_index(struct device *dev,
 	 */
 	if (!desc || gpiod_not_found(desc)) {
 		dev_dbg(dev, "using lookup tables for GPIO lookup\n");
+		dev_err(dev, "GPIO !desc %s\n", con_id);
 		desc = gpiod_find(dev, con_id, idx, &lookupflags);
 	}
 
 	if (IS_ERR(desc)) {
+		dev_err(dev, "GPIO IS_ERR() %s\n", con_id);
 		dev_dbg(dev, "No GPIO consumer %s found\n", con_id);
 		return desc;
 	}
@@ -3922,8 +3926,11 @@ struct gpio_desc *__must_check gpiod_get_index(struct device *dev,
 	 * If a connection label was passed use that, else attempt to use
 	 * the device name as label
 	 */
+	dev_err(dev, "GPIO request %s\n", con_id);
 	ret = gpiod_request(desc, con_id ? con_id : devname);
 	if (ret) {
+		pr_err("gpiod_request() fail ret=%d\n", ret);
+		dev_err(dev, "GPIO request %s ret=%d\n", con_id, ret);
 		if (ret == -EBUSY && flags & GPIOD_FLAGS_BIT_NONEXCLUSIVE) {
 			/*
 			 * This happens when there are several consumers for
@@ -3937,12 +3944,14 @@ struct gpio_desc *__must_check gpiod_get_index(struct device *dev,
 				 con_id ? con_id : devname);
 			return desc;
 		} else {
+			pr_err("gpiod_request() fail to else ret=%d\n", ret);
 			return ERR_PTR(ret);
 		}
 	}
 
 	ret = gpiod_configure_flags(desc, con_id, lookupflags, flags);
 	if (ret < 0) {
+		dev_err(dev, "GPIO configure %s ret=%d\n", con_id, ret);
 		dev_dbg(dev, "setup of GPIO %s failed\n", con_id);
 		gpiod_put(desc);
 		return ERR_PTR(ret);

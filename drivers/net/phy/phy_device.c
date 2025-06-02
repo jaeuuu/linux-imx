@@ -594,6 +594,8 @@ static int phy_request_driver_module(struct phy_device *dev, u32 phy_id)
 	 * Accept -ENOENT because this may occur in case no initramfs exists,
 	 * then modprobe isn't available.
 	 */
+	pr_err("phy_request_driver_module()... debugged by ojw\n");
+	phydev_err(dev, "phy_request_driver_module() in debugged by ojw\n");
 	if (IS_ENABLED(CONFIG_MODULES) && ret < 0 && ret != -ENOENT) {
 		phydev_err(dev, "error %d loading PHY driver module for ID 0x%08lx\n",
 			   ret, (unsigned long)phy_id);
@@ -665,6 +667,7 @@ struct phy_device *phy_device_create(struct mii_bus *bus, int addr, u32 phy_id,
 		const int num_ids = ARRAY_SIZE(c45_ids->device_ids);
 		int i;
 
+		pr_err("is_c45 ret=%d ok debugged by ojw\n", ret);
 		for (i = 1; i < num_ids; i++) {
 			if (c45_ids->device_ids[i] == 0xffffffff)
 				continue;
@@ -676,6 +679,7 @@ struct phy_device *phy_device_create(struct mii_bus *bus, int addr, u32 phy_id,
 		}
 	} else {
 		ret = phy_request_driver_module(dev, phy_id);
+		pr_err("is_c22 ret=%d ok debugged by ojw\n", ret);
 	}
 
 	if (ret) {
@@ -851,6 +855,7 @@ static int get_phy_c22_id(struct mii_bus *bus, int addr, u32 *phy_id)
 	phy_reg = mdiobus_read(bus, addr, MII_PHYSID1);
 	if (phy_reg < 0) {
 		/* returning -ENODEV doesn't stop bus scanning */
+		pr_err("mdiobus_read() fail MII_PHYSID1\n");
 		return (phy_reg == -EIO || phy_reg == -ENODEV) ? -ENODEV : -EIO;
 	}
 
@@ -860,14 +865,17 @@ static int get_phy_c22_id(struct mii_bus *bus, int addr, u32 *phy_id)
 	phy_reg = mdiobus_read(bus, addr, MII_PHYSID2);
 	if (phy_reg < 0) {
 		/* returning -ENODEV doesn't stop bus scanning */
+		pr_err("mdiobus_read() fail MII_PHYSID2\n");
 		return (phy_reg == -EIO || phy_reg == -ENODEV) ? -ENODEV : -EIO;
 	}
 
 	*phy_id |= phy_reg;
 
 	/* If the phy_id is mostly Fs, there is no device there */
-	if ((*phy_id & 0x1fffffff) == 0x1fffffff)
+	if ((*phy_id & 0x1fffffff) == 0x1fffffff) {
+		pr_err("mdiobus_read() fail no device...?\n");
 		return -ENODEV;
+	}
 
 	return 0;
 }
@@ -927,8 +935,10 @@ struct phy_device *get_phy_device(struct mii_bus *bus, int addr, bool is_c45)
 	else
 		r = get_phy_c22_id(bus, addr, &phy_id);
 
-	if (r)
+	if (r) {
+		pr_err("not found phy id... addr=0x%X, ret=%d\n", addr, r);
 		return ERR_PTR(r);
+	}
 
 	/* PHY device such as the Marvell Alaska 88E2110 will return a PHY ID
 	 * of 0 when probed using get_phy_c22_id() with no error. Proceed to
@@ -2959,12 +2969,16 @@ struct mdio_device *fwnode_mdio_find_device(struct fwnode_handle *fwnode)
 {
 	struct device *d;
 
-	if (!fwnode)
+	if (!fwnode) {
+		pr_err("fwnode is null... debugged by ojw\n");
 		return NULL;
+	}
 
 	d = bus_find_device_by_fwnode(&mdio_bus_type, fwnode);
-	if (!d)
+	if (!d) {
+		pr_err("d(device) is null... debugged by ojw\n");
 		return NULL;
+	}
 
 	return to_mdio_device(d);
 }
@@ -2983,11 +2997,15 @@ struct phy_device *fwnode_phy_find_device(struct fwnode_handle *phy_fwnode)
 	struct mdio_device *mdiodev;
 
 	mdiodev = fwnode_mdio_find_device(phy_fwnode);
-	if (!mdiodev)
+	if (!mdiodev) {
+		pr_err("mdiodev is null... debugged by ojw\n");
 		return NULL;
+	}
 
-	if (mdiodev->flags & MDIO_DEVICE_FLAG_PHY)
+	if (mdiodev->flags & MDIO_DEVICE_FLAG_PHY) {
 		return to_phy_device(&mdiodev->dev);
+	}
+	pr_err("mdiodev->flags is \'0\'... debugged by ojw\n");
 
 	put_device(&mdiodev->dev);
 

@@ -3692,10 +3692,14 @@ static int fec_reset_phy(struct platform_device *pdev)
 		msec = 1;
 
 	phy_reset = of_get_named_gpio(np, "phy-reset-gpios", 0);
-	if (phy_reset == -EPROBE_DEFER)
+	pr_err("of_get_named_gpio phy_reset=%d\n", phy_reset);
+	if (phy_reset == -EPROBE_DEFER) {
+		pr_err("of_get_named_gpio out1?\n");
 		return phy_reset;
-	else if (!gpio_is_valid(phy_reset))
+	} else if (!gpio_is_valid(phy_reset)) {
+		pr_err("of_get_named_gpio out1? gpio_is_valid()? phy_reset=%d\n", phy_reset);
 		return 0;
+	}
 
 	err = of_property_read_u32(np, "phy-reset-post-delay", &phy_post_delay);
 	/* valid reset duration should be less than 1s */
@@ -3717,7 +3721,9 @@ static int fec_reset_phy(struct platform_device *pdev)
 	else
 		usleep_range(msec * 1000, msec * 1000 + 1000);
 
-	gpio_set_value_cansleep(phy_reset, !active_high);
+	//gpio_set_value_cansleep(phy_reset, !active_high);
+	pr_err("phy_reset active high!\n");
+	gpio_set_value_cansleep(phy_reset, active_high);
 
 	if (!phy_post_delay)
 		return 0;
@@ -4050,6 +4056,8 @@ fec_probe(struct platform_device *pdev)
 	ret = fec_enet_mii_init(pdev);
 	if (ret)
 		goto failed_mii_init;
+	else
+		netdev_err(ndev, "fec_enet_mii_init ok debugged by ojw\n");
 
 	/* Carrier starts down, phylib will bring it up */
 	netif_carrier_off(ndev);

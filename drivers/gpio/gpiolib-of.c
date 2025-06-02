@@ -249,18 +249,24 @@ static struct gpio_desc *of_get_named_gpiod_flags(const struct device_node *np,
 	if (ret) {
 		pr_debug("%s: can't parse '%s' property of node '%pOF[%d]'\n",
 			__func__, propname, np, index);
+
+		pr_err("%s: can't parse '%s' property of node '%pOF[%d]'\n",
+			__func__, propname, np, index);
 		return ERR_PTR(ret);
 	}
 
 	chip = of_find_gpiochip_by_xlate(&gpiospec);
 	if (!chip) {
+		pr_err("of_find_gpiochip_by_xlate() fail\n");
 		desc = ERR_PTR(-EPROBE_DEFER);
 		goto out;
 	}
 
 	desc = of_xlate_and_get_gpiod_flags(chip, &gpiospec, flags);
-	if (IS_ERR(desc))
+	if (IS_ERR(desc)) {
+		pr_err("of_xlate_and_get_gpiod_flags() fail\n");
 		goto out;
+	}
 
 	if (flags)
 		of_gpio_flags_quirks(np, propname, flags, index);
