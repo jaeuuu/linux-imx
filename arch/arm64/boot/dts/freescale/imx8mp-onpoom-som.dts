@@ -27,7 +27,7 @@
 		compatible = "regulator-fixed";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_sys_status_led>;
-		regulator-name = "VSD_3V3";
+		regulator-name = "VSD3_3V3";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		gpio = <&gpio3 16 GPIO_ACTIVE_HIGH>;
@@ -181,7 +181,7 @@
 		compatible = "nxp,ptn5150";
 		pinctrl-names = "default", "vbus_gpio";
 		pinctrl-0 = <&pinctrl_typec>;
-		pinctrl-1 = <&pinctrl_usb1_vbus_gpio>;
+		pinctrl-1 = <&pinctrl_usb0_vbus_gpio>;
 		reg = <0x3d>;
 		/*
 		 * Set gpio1-io9 pin to int pin.
@@ -294,7 +294,7 @@
 		>;
 	};
 
-	pinctrl_usb1_vbus_gpio: reg_usb1_gpiogrp {
+	pinctrl_usb0_vbus_gpio: reg_usb0_gpiogrp {
 		fsl,pins = <
 			MX8MP_IOMUXC_GPIO1_IO12__GPIO1_IO12 0x10
 		>;
@@ -372,36 +372,4 @@
 			MX8MP_IOMUXC_GPIO1_IO02__WDOG1_WDOG_B	0x166
 		>;
 	};
-};
-
-&vpu_g1 {
-	status = "okay";
-};
-
-&vpu_g2 {
-	status = "okay";
-};
-
-&vpu_vc8000e {
-	status = "okay";
-};
-
-&vpu_v4l2 {
-	status = "okay";
-};
-
-&gpu_3d {
-	status = "okay";
-};
-
-&gpu_2d {
-	status = "okay";
-};
-
-&ml_vipsi {
-	status = "okay";
-};
-
-&mix_gpu_ml {
-	status = "okay";
 };

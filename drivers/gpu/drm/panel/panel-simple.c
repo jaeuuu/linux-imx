@@ -5234,6 +5234,41 @@ static const struct panel_desc_dsi osd101t2045_53ts = {
 	.lanes = 4,
 };
 
+#if 1
+
+static const struct drm_display_mode ec101_1024600w_d024_mode = {
+	.clock = 51200,
+	.hdisplay = 1024,
+	.hsync_start = 1024 + 160,	// area + front porch
+	.hsync_end = 1024 + 160 + 70,	// area + front porch + pulse width
+	.htotal = 1024 + 160 + 70 + 32,	// area + front porch + pulse width + back porch
+	.vdisplay = 600,
+	.vsync_start = 600 + 12,	// area + front porch
+	.vsync_end = 600 + 12 + 10,	// area + front porch + pulse width
+	.vtotal = 600 + 12 + 10 + 23,	// area + front porch + pulse width + back porch
+	.flags = DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
+};
+
+static const struct panel_desc_dsi ec101_1024600w_d024 = {
+	.desc = {
+		.modes = &ec101_1024600w_d024_mode,
+		.num_modes = 1,
+		.bpc = 8,
+		.size = {
+			.width = 222,
+			.height = 125,
+		},
+		.connector_type = DRM_MODE_CONNECTOR_DSI,
+	},
+	.flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
+		 MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
+		 MIPI_DSI_MODE_NO_EOT_PACKET,
+	.format = MIPI_DSI_FMT_RGB888,
+	.lanes = 4,
+};
+
+#endif
+
 static const struct of_device_id dsi_of_match[] = {
 	{
 		.compatible = "auo,b080uan01",
@@ -5256,6 +5291,9 @@ static const struct of_device_id dsi_of_match[] = {
 	}, {
 		.compatible = "osddisplays,osd101t2045-53ts",
 		.data = &osd101t2045_53ts
+	}, {
+		.compatible = "solics,ec101-1024600w-d024",
+		.data = &ec101_1024600w_d024
 	}, {
 		/* sentinel */
 	}
