@@ -4534,6 +4534,59 @@ static const struct panel_desc arm_rtsm = {
 	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
 };
 
+#if 0
+static const struct drm_display_mode ec101_1024600w_d025_mode = {
+	.clock = 51200,
+	.hdisplay = 1024,
+	.hsync_start = 1024 + 160,
+	.hsync_end = 1024 + 160 + 70,
+	.htotal = 1024 + 160 + 70 + 160,
+	.vdisplay = 600,
+	.vsync_start = 600 + 12,
+	.vsync_end = 600 + 12 + 10,
+	.vtotal = 600 + 12 + 10 + 23,
+	.flags = DRM_MODE_FLAG_PHSYNC | DRM_MODE_FLAG_PVSYNC,
+};
+
+static const struct panel_desc ec101_1024600w_d025 = {
+	.modes = &ec101_1024600w_d025_mode,
+	.num_modes = 1,
+	.bpc = 8,
+	.size = {
+		.width = 222,
+		.height = 125,
+	},
+	.bus_flags = DRM_BUS_FLAG_DE_HIGH,
+	.bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_SPWG,
+	.connector_type = DRM_MODE_CONNECTOR_LVDS,
+};
+#else	/* display mode used */
+static const struct display_timing ec101_1024600w_d025_timing = {
+	.pixelclock = { 44900000, 51200000, 63000000 },
+	.hactive = { 1024, 1024, 1024 },
+	.hfront_porch = { 16, 160, 216 },
+	.hback_porch = { 160, 160, 160 },
+	.hsync_len = { 1, 70, 140 },
+	.vactive = { 600, 600, 600},
+	.vfront_porch = { 1, 12, 127 },
+	.vback_porch = { 23, 23, 23 },
+	.vsync_len = { 1, 10, 20 },
+};
+
+static const struct panel_desc ec101_1024600w_d025 = {
+	.timings = &ec101_1024600w_d025_timing,
+	.num_timings = 1,
+	.bpc = 8,
+	.size = {
+		.width = 222,
+		.height = 125,
+	},
+	.bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_SPWG,
+	.bus_flags = DRM_BUS_FLAG_DE_HIGH,
+	.connector_type = DRM_MODE_CONNECTOR_LVDS,
+};
+#endif	/* timing used */
+
 static const struct of_device_id platform_of_match[] = {
 	{
 		.compatible = "ampire,am-1280800n3tzqw-t00h",
@@ -4980,6 +5033,9 @@ static const struct of_device_id platform_of_match[] = {
 		/* Must be the last entry */
 		.compatible = "panel-dpi",
 		.data = &panel_dpi,
+	}, {
+		.compatible = "solics,ec101-1024600w-d025",
+		.data = &ec101_1024600w_d025,
 	}, {
 		/* sentinel */
 	}

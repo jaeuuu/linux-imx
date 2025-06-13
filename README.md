@@ -59,7 +59,7 @@ Recommended by AR8031 datasheet.
 ### 4. MIPI-DSI bring-up
 - mipi-dsi panel, mipi-dsi port is written in devicetree. (arch/arm64/boot/dts/freescale/imx8mp-onpoom-jig.dts)
 
-### 5. 10.1 inch LCD panel bring-up
+### 5. 10.1 inch LCD panel bring-up (MIPI-DSI)
 - Panel configuration is set in driver. (driver/gpu/drm/panel/panel-simple.c)
 - Panel compatible name is "solics,ec101-1024600w-d024".
 - Configuration info is written in datasheet.
@@ -70,3 +70,33 @@ Recommended by AR8031 datasheet.
 - Set configuration goodix driver 'y'.
 - Set interrupt pin in devicetree.
 - Set reset pin in devicetree.
+
+### 7. LVDS bring-up
+- lvds panel, lvds port is written in devicetree. (arch/arm64/boot/dts/
+freescale/imx8mp-onpoom-jig.dts)
+
+### 8. 10.1 inch LCD panel bring-up (LVDS)
+- Panel configuration is written in driver. (driver/gpu/drm/panel/panel-simple.c)
+- Panel compatible name is "solics,ec101-1024600w-d025".
+- Configuration info is written in datasheet. (HX8282)
+- Set panel regulator pin in devicetree. because of internal pull-up required by
+H/W Team. (shared by MIPI-DSI panel)
+
+### 9. I2C-IO bring-up
+- Use pca6416 ic.
+- I2C-IO configuration is written in devicetree. (arch/arm64/boot/dts/
+freescale/imx8mp-onpoom-jig.dts)
+
+### 10. SPI-IO bring-up
+- Use mcp23s17 ic.
+- SPI-IO configuration is written in devicetree. (arch/arm64/boot/dts/
+freescale/imx8mp-onpoom-jig.dts)
+
+### 11. PCIe to UART bring-up
+- Use AX99100 Multi-I/O ic.
+
+### 12. Audio Out bring-up
+- Use sai3 interface.
+
+### 13. Audio In bring-up
+- Use sai2 interface.

@@ -66,6 +66,9 @@ static const struct pci_device_id pci_use_msi[] = {
 			 0xA000, 0x1000) },
 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_NETMOS, PCI_DEVICE_ID_NETMOS_9922,
 			 0xA000, 0x1000) },
+#if 1	/* AX99100 */
+	{ PCI_DEVICE_SUB(0x125b, 0x9100, 0xA000, 0x1000) },
+#endif
 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_HP_3PAR, PCI_DEVICE_ID_HPE_PCI_SERIAL,
 			 PCI_ANY_ID, PCI_ANY_ID) },
 	{ }
@@ -1251,6 +1254,7 @@ static int pci_asix_setup(struct serial_private *priv,
 		  const struct pciserial_board *board,
 		  struct uart_8250_port *port, int idx)
 {
+	pr_err("pci_asix_setup() in\n");
 	port->bugs |= UART_BUG_PARITY;
 	return pci_default_setup(priv, board, port, idx);
 }
@@ -6065,6 +6069,9 @@ static const struct pci_device_id serial_pci_tbl[] = {
 	{	PCI_VENDOR_ID_REALTEK, 0x816b,
 		PCI_ANY_ID, PCI_ANY_ID,
 		0, 0, pbn_b0_1_115200 },
+#if 1	/* AX99100 */
+	{ 0x125b, 0x9100, 0xA000, 0x1000, 0, 0, pbn_b0_1_115200 },
+#endif
 
 	/* Fintek PCI serial cards */
 	{ PCI_DEVICE(0x1c29, 0x1104), .driver_data = pbn_fintek_4 },
