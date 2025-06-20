@@ -97,3 +97,13 @@ kernel code가 일부 수정됨.
 
 ### 13. Audio In bring-up
 - Use sai2 interface.
+
+### 14. Supervisor current & voltage bring-up
+- Use ina260 ic.
+- INA260 드라이버는 커널 6.16을 참고하여 기존 INA2XX 시리즈 드라이버에 추가함. (drivers/hwmon/ina2xx.c)
+- INA260 ic 를 적용하기 위해 다소 많은 부분이 수정됨. (drivers/hwmon/ina2xx.c)
+- INA260 ic는 sysfs를 통해 값을 설정 및 확인함.
+- 제한 값에 따라 ALERT LED 및 ALARM bit 확인.
+- 다른 INA2XX 시리즈와 다르게 INA260은 shunt voltage 레지스터를 current 레지스터로 사용함.
+- curr1_crit, curr1_input, curr1_lcrit, curr1_crit_alarm, curr1_lcrit_alarm 등의 sysfs 속성을 추가하여,
+기존 shunt voltage 관련 레지스터를 current 관련 레지스터로 사용토록 함.

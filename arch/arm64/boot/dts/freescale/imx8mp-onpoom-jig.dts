@@ -11,7 +11,6 @@
 	model = "NXP i.MX8MPlus ONPOOM Jig Board";
 	compatible = "fsl,imx8mp-evk", "fsl,imx8mp", "onpoom,imx8mp-onpoom-som";
 
-/*
 	reg_can1_stby: regulator-can1-stby {
 		compatible = "regulator-fixed";
 		regulator-name = "can1-stby";
@@ -33,7 +32,6 @@
 		gpio = <&gpio4 27 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
-*/
 
 	reg_usdhc2_vmmc: regulator-usdhc2 {
 		compatible = "regulator-fixed";
@@ -235,16 +233,16 @@
 &flexcan1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_flexcan1>;
-	//xceiver-supply = <&reg_can1_stby>;
-	status = "disabled";
+	xceiver-supply = <&reg_can1_stby>;
+	status = "okay";
 };
 
 &flexcan2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_flexcan2>;
-	//xceiver-supply = <&reg_can2_stby>;
+	xceiver-supply = <&reg_can2_stby>;
 	//pinctrl-assert-gpios = <&pca6416 3 GPIO_ACTIVE_HIGH>;
-	status = "disabled";/* can2 pin conflict with pdm */
+	status = "okay";/* can2 pin conflict with pdm */
 };
 
 &dsp {
@@ -451,6 +449,18 @@
 		interrupt-parent = <&gpio1>;
 		interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
 		reset-gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&i2c4 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c4>;
+	status = "okay";
+
+	ina260: hwmon@40 {
+		compatible = "ti,ina260";
+		reg = <0x40>;
 	};
 };
 
@@ -825,13 +835,12 @@
 			MX8MP_IOMUXC_SPDIF_EXT_CLK__GPIO5_IO05  0x154   /* CAN1_STBY */
 		>;
 	};
-/*
+
 	pinctrl_flexcan2_reg: flexcan2reggrp {
 		fsl,pins = <
 			MX8MP_IOMUXC_SAI2_MCLK__GPIO4_IO27      0x154
 		>;
 	};
-*/
 
 	pinctrl_mipi_panel_reg: mipipanelreggrp {
 		fsl,pins = <
@@ -857,6 +866,13 @@
 		>;
 	};
 
+	pinctrl_i2c4: i2c4grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_I2C4_SCL__I2C4_SCL		0x400001c2
+			MX8MP_IOMUXC_I2C4_SDA__I2C4_SDA		0x400001c2
+		>;
+	};
+
 	pinctrl_mipi_dsi_en: mipi_dsi_en {
 		fsl,pins = <
 			MX8MP_IOMUXC_GPIO1_IO08__GPIO1_IO08	0x16
@@ -865,10 +881,10 @@
 
 	pinctrl_pcie: pciegrp {
 		fsl,pins = <
-			MX8MP_IOMUXC_I2C4_SCL__PCIE_CLKREQ_B		0x60 /* open drain, pull up */
+			//MX8MP_IOMUXC_I2C4_SCL__PCIE_CLKREQ_B		0x60 /* open drain, pull up */
 			MX8MP_IOMUXC_SD1_DATA4__GPIO2_IO06		0x40
 			MX8MP_IOMUXC_SD1_DATA5__GPIO2_IO07		0x40
-			MX8MP_IOMUXC_I2C4_SDA__GPIO5_IO21		0x1c4
+			//MX8MP_IOMUXC_I2C4_SDA__GPIO5_IO21		0x1c4
 		>;
 	};
 
@@ -897,7 +913,7 @@
 			MX8MP_IOMUXC_SAI2_RXD0__AUDIOMIX_SAI2_RX_DATA00	0xd6
 			MX8MP_IOMUXC_SAI2_RXC__AUDIOMIX_SAI2_RX_BCLK	0xd6
 			MX8MP_IOMUXC_SAI2_RXFS__AUDIOMIX_SAI2_RX_SYNC	0xd6
-			MX8MP_IOMUXC_SAI2_MCLK__AUDIOMIX_SAI2_MCLK		0xd6
+			//MX8MP_IOMUXC_SAI2_MCLK__AUDIOMIX_SAI2_MCLK		0xd6
 		>;
 	};
 
