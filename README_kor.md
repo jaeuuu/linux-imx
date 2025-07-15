@@ -94,9 +94,11 @@ kernel code가 일부 수정됨.
 
 ### 12. Audio Out bring-up
 - Use sai3 interface.
+- codec으로 max98357a ic 사용함. i2s-to-hcg 변환 ic.
 
 ### 13. Audio In bring-up
 - Use sai2 interface.
+- codec으로 dir9001 ic 사용함. spdif-to-i2s 변환 ic.
 
 ### 14. Supervisor current & voltage bring-up
 - Use ina260 ic.
@@ -107,3 +109,16 @@ kernel code가 일부 수정됨.
 - 다른 INA2XX 시리즈와 다르게 INA260은 shunt voltage 레지스터를 current 레지스터로 사용함.
 - curr1_crit, curr1_input, curr1_lcrit, curr1_crit_alarm, curr1_lcrit_alarm 등의 sysfs 속성을 추가하여,
 기존 shunt voltage 관련 레지스터를 current 관련 레지스터로 사용토록 함.
+
+### 15. MIPI-CSI bring-up
+- NXP사의 ov5640 ic를 사용한 카메라 기능을 통해 인터페이스 확인함.
+- ov5640 ic 드라이버가 module로서 존재하므로 모듈 로딩을 위해 /lib/modules/xxx 경로명을 'uname -a'로 출력되는 이름과 일치시켜야 함.
+- vt4l2-ctl 명령어를 사용하여 캡처 기능을 통해 카메라의 동작을 확인함.
+- 명령어는 다음과 같으며, 출력된 이미지를 png형식으로 변환하여 확인 함.
+```
+v4l2-ctl --device /dev/video3 \
+        --set-fmt-video=width=640,height=480,pixelformat=YUYV \
+        --stream-mmap \
+        --stream-to=frame.raw \
+        --stream-count=1
+```

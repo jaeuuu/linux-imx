@@ -20,7 +20,7 @@
 #include "leds.h"
 
 struct led_pwm {
-	const char	*name;
+	const char *name;
 	u8		active_low;
 	u8		default_state;
 	unsigned int	max_brightness;
@@ -28,7 +28,7 @@ struct led_pwm {
 
 struct led_pwm_data {
 	struct led_classdev	cdev;
-	struct pwm_device	*pwm;
+	struct pwm_device *pwm;
 	struct pwm_state	pwmstate;
 	unsigned int		active_low;
 };
@@ -39,7 +39,7 @@ struct led_pwm_priv {
 };
 
 static int led_pwm_set(struct led_classdev *led_cdev,
-		       enum led_brightness brightness)
+	enum led_brightness brightness)
 {
 	struct led_pwm_data *led_dat =
 		container_of(led_cdev, struct led_pwm_data, cdev);
@@ -59,7 +59,7 @@ static int led_pwm_set(struct led_classdev *led_cdev,
 
 __attribute__((nonnull))
 static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
-		       struct led_pwm *led, struct fwnode_handle *fwnode)
+	struct led_pwm *led, struct fwnode_handle *fwnode)
 {
 	struct led_pwm_data *led_data = &priv->leds[priv->num_leds];
 	struct led_init_data init_data = { .fwnode = fwnode };
@@ -67,15 +67,16 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
 
 	led_data->active_low = led->active_low;
 	led_data->cdev.name = led->name;
-	led_data->cdev.brightness = LED_OFF;
+	//led_data->cdev.brightness = LED_OFF;
+	led_data->cdev.brightness = led->max_brightness / 2;
 	led_data->cdev.max_brightness = led->max_brightness;
 	led_data->cdev.flags = LED_CORE_SUSPENDRESUME;
 
 	led_data->pwm = devm_fwnode_pwm_get(dev, fwnode, NULL);
 	if (IS_ERR(led_data->pwm))
 		return dev_err_probe(dev, PTR_ERR(led_data->pwm),
-				     "unable to request PWM for %s\n",
-				     led->name);
+			"unable to request PWM for %s\n",
+			led->name);
 
 	led_data->cdev.brightness_set_blocking = led_pwm_set;
 
@@ -101,15 +102,15 @@ static int led_pwm_add(struct device *dev, struct led_pwm_priv *priv,
 		led_data->cdev.brightness = led->max_brightness;
 		break;
 	case LEDS_DEFSTATE_KEEP:
-		{
+	{
 		uint64_t brightness;
 
 		brightness = led->max_brightness;
 		brightness *= led_data->pwmstate.duty_cycle;
 		do_div(brightness, led_data->pwmstate.period);
 		led_data->cdev.brightness = brightness;
-		}
-		break;
+	}
+	break;
 	}
 
 	ret = devm_led_classdev_register_ext(dev, &led_data->cdev, &init_data);
@@ -151,9 +152,9 @@ static int led_pwm_create_fwnode(struct device *dev, struct led_pwm_priv *priv)
 		}
 
 		led.active_low = fwnode_property_read_bool(fwnode,
-							   "active-low");
+			"active-low");
 		fwnode_property_read_u32(fwnode, "max-brightness",
-					 &led.max_brightness);
+			&led.max_brightness);
 
 		led.default_state = led_init_default_state_get(fwnode);
 
@@ -181,7 +182,7 @@ static int led_pwm_probe(struct platform_device *pdev)
 		return -EINVAL;
 
 	priv = devm_kzalloc(&pdev->dev, struct_size(priv, leds, count),
-			    GFP_KERNEL);
+		GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 
@@ -196,15 +197,15 @@ static int led_pwm_probe(struct platform_device *pdev)
 }
 
 static const struct of_device_id of_pwm_leds_match[] = {
-	{ .compatible = "pwm-leds", },
+	{.compatible = "pwm-leds", },
 	{},
 };
 MODULE_DEVICE_TABLE(of, of_pwm_leds_match);
 
 static struct platform_driver led_pwm_driver = {
-	.probe		= led_pwm_probe,
-	.driver		= {
-		.name	= "leds_pwm",
+	.probe = led_pwm_probe,
+	.driver = {
+		.name = "leds_pwm",
 		.of_match_table = of_pwm_leds_match,
 	},
 };

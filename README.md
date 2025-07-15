@@ -97,6 +97,27 @@ freescale/imx8mp-onpoom-jig.dts)
 
 ### 12. Audio Out bring-up
 - Use sai3 interface.
+- Use max98357a codec ic. (i2s-to-hcg converter)
 
 ### 13. Audio In bring-up
 - Use sai2 interface.
+- Use dir9001 codec ic. (spdif-to-i2s converter)
+
+### 14. Supervisor current & voltage bring-up
+- Use ina260 ic.
+- ina260 driver is written by referring to linux kernel v6.16. (drivers/hwmon/ina2xx.c)
+- ina260 driver is checked through sysfs
+- ina260 ALERT LED and ALARM bit checked for limit value.
+- shunt voltage register of ina260 is used current register.
+- curr1_crit, curr1_input, curr1_lcrit, curr1_crit_alarm, curr1_lcrit_alarm added to sysfs.
+
+### 15. MIPI-CSI bring-up
+- Use NXP Corp's MINISASTOCSI module(using ov5640 ic).
+- Capture images through vt4l2-ctl command.
+```
+v4l2-ctl --device /dev/video3 \
+        --set-fmt-video=width=640,height=480,pixelformat=YUYV \
+        --stream-mmap \
+        --steram-to=frame.raw \
+        --stream-conunt =1
+```
