@@ -26,6 +26,8 @@ the problems which may result by upgrading your kernel.
 이 보드는 NXP사의 imx8m-plus EVK 보드를 기반으로 하며, imx8m-plus AP, 8GB RAM, 32GB eMMC
 등으로 구성됨.
 
+먼저, 디바이스트리를 확인하여 변경사항을 비교해볼 것.
+
 ### 1. LPDDR 8GB bring-up
 
 ### 2. DWC USB3.0(compatible USB2.0) bring-up
@@ -99,6 +101,7 @@ kernel code가 일부 수정됨.
 ### 13. Audio In bring-up
 - Use sai2 interface.
 - codec으로 dir9001 ic 사용함. spdif-to-i2s 변환 ic.
+- 반드시 sai 노드에 "fsl,sai-asynchronous" 속성을 활성화 해야한다.
 
 ### 14. Supervisor current & voltage bring-up
 - Use ina260 ic.

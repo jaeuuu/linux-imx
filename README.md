@@ -41,6 +41,8 @@ Brought-up by ONPOOM Corp.
 
 This board is based on ONPOOM Corp's imx8m-plus som-8gb_board and consists of various interfaces(usb, uart, usdhc, i2c, i2s, spi, mipi-csi, mipi-=dsi, lvds, etc.) for testing.
 
+First, please refer to devicetree. <arch/arm64/boot/dts/freescale/imx8mp-onpoom-jig.dts>
+
 ### 1. Ethernet bring-up
 - Enabled internal pull-up for reset pin. Both eqos and fec.
 - AR8031 E-PHY address is 0x4. Both eqos and fec.
@@ -102,6 +104,7 @@ freescale/imx8mp-onpoom-jig.dts)
 ### 13. Audio In bring-up
 - Use sai2 interface.
 - Use dir9001 codec ic. (spdif-to-i2s converter)
+- must be enable in sai node for "fsl,sai-asynchronous" property.
 
 ### 14. Supervisor current & voltage bring-up
 - Use ina260 ic.
@@ -119,5 +122,5 @@ v4l2-ctl --device /dev/video3 \
         --set-fmt-video=width=640,height=480,pixelformat=YUYV \
         --stream-mmap \
         --steram-to=frame.raw \
-        --stream-conunt =1
+        --stream-count =1
 ```
