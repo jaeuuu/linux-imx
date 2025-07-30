@@ -47,7 +47,7 @@
 #define MAX_CONTACTS_LOC	5
 #define TRIGGER_LOC		6
 
-/* Our special handling for GPIO accesses through ACPI is x86 specific */
+ /* Our special handling for GPIO accesses through ACPI is x86 specific */
 #if defined CONFIG_X86 && defined CONFIG_ACPI
 #define ACPI_GPIO_SUPPORT
 #endif
@@ -58,58 +58,58 @@ struct goodix_chip_id {
 };
 
 static int goodix_check_cfg_8(struct goodix_ts_data *ts,
-			      const u8 *cfg, int len);
+	const u8 *cfg, int len);
 static int goodix_check_cfg_16(struct goodix_ts_data *ts,
-			       const u8 *cfg, int len);
+	const u8 *cfg, int len);
 static void goodix_calc_cfg_checksum_8(struct goodix_ts_data *ts);
 static void goodix_calc_cfg_checksum_16(struct goodix_ts_data *ts);
 
 static const struct goodix_chip_data gt1x_chip_data = {
-	.config_addr		= GOODIX_GT1X_REG_CONFIG_DATA,
-	.config_len		= GOODIX_CONFIG_GT9X_LENGTH,
-	.check_config		= goodix_check_cfg_16,
-	.calc_config_checksum	= goodix_calc_cfg_checksum_16,
+	.config_addr = GOODIX_GT1X_REG_CONFIG_DATA,
+	.config_len = GOODIX_CONFIG_GT9X_LENGTH,
+	.check_config = goodix_check_cfg_16,
+	.calc_config_checksum = goodix_calc_cfg_checksum_16,
 };
 
 static const struct goodix_chip_data gt911_chip_data = {
-	.config_addr		= GOODIX_GT9X_REG_CONFIG_DATA,
-	.config_len		= GOODIX_CONFIG_911_LENGTH,
-	.check_config		= goodix_check_cfg_8,
-	.calc_config_checksum	= goodix_calc_cfg_checksum_8,
+	.config_addr = GOODIX_GT9X_REG_CONFIG_DATA,
+	.config_len = GOODIX_CONFIG_911_LENGTH,
+	.check_config = goodix_check_cfg_8,
+	.calc_config_checksum = goodix_calc_cfg_checksum_8,
 };
 
 static const struct goodix_chip_data gt967_chip_data = {
-	.config_addr		= GOODIX_GT9X_REG_CONFIG_DATA,
-	.config_len		= GOODIX_CONFIG_967_LENGTH,
-	.check_config		= goodix_check_cfg_8,
-	.calc_config_checksum	= goodix_calc_cfg_checksum_8,
+	.config_addr = GOODIX_GT9X_REG_CONFIG_DATA,
+	.config_len = GOODIX_CONFIG_967_LENGTH,
+	.check_config = goodix_check_cfg_8,
+	.calc_config_checksum = goodix_calc_cfg_checksum_8,
 };
 
 static const struct goodix_chip_data gt9x_chip_data = {
-	.config_addr		= GOODIX_GT9X_REG_CONFIG_DATA,
-	.config_len		= GOODIX_CONFIG_GT9X_LENGTH,
-	.check_config		= goodix_check_cfg_8,
-	.calc_config_checksum	= goodix_calc_cfg_checksum_8,
+	.config_addr = GOODIX_GT9X_REG_CONFIG_DATA,
+	.config_len = GOODIX_CONFIG_GT9X_LENGTH,
+	.check_config = goodix_check_cfg_8,
+	.calc_config_checksum = goodix_calc_cfg_checksum_8,
 };
 
 static const struct goodix_chip_id goodix_chip_ids[] = {
-	{ .id = "1151", .data = &gt1x_chip_data },
-	{ .id = "1158", .data = &gt1x_chip_data },
-	{ .id = "5663", .data = &gt1x_chip_data },
-	{ .id = "5688", .data = &gt1x_chip_data },
-	{ .id = "917S", .data = &gt1x_chip_data },
-	{ .id = "9286", .data = &gt1x_chip_data },
+	{.id = "1151", .data = &gt1x_chip_data },
+	{.id = "1158", .data = &gt1x_chip_data },
+	{.id = "5663", .data = &gt1x_chip_data },
+	{.id = "5688", .data = &gt1x_chip_data },
+	{.id = "917S", .data = &gt1x_chip_data },
+	{.id = "9286", .data = &gt1x_chip_data },
 
-	{ .id = "911", .data = &gt911_chip_data },
-	{ .id = "9271", .data = &gt911_chip_data },
-	{ .id = "9110", .data = &gt911_chip_data },
-	{ .id = "9111", .data = &gt911_chip_data },
-	{ .id = "927", .data = &gt911_chip_data },
-	{ .id = "928", .data = &gt911_chip_data },
+	{.id = "911", .data = &gt911_chip_data },
+	{.id = "9271", .data = &gt911_chip_data },
+	{.id = "9110", .data = &gt911_chip_data },
+	{.id = "9111", .data = &gt911_chip_data },
+	{.id = "927", .data = &gt911_chip_data },
+	{.id = "928", .data = &gt911_chip_data },
 
-	{ .id = "912", .data = &gt967_chip_data },
-	{ .id = "9147", .data = &gt967_chip_data },
-	{ .id = "967", .data = &gt967_chip_data },
+	{.id = "912", .data = &gt967_chip_data },
+	{.id = "9147", .data = &gt967_chip_data },
+	{.id = "967", .data = &gt967_chip_data },
 	{ }
 };
 
@@ -164,14 +164,14 @@ int goodix_i2c_read(struct i2c_client *client, u16 reg, u8 *buf, int len)
 	int ret;
 
 	msgs[0].flags = 0;
-	msgs[0].addr  = client->addr;
-	msgs[0].len   = 2;
-	msgs[0].buf   = (u8 *)&wbuf;
+	msgs[0].addr = client->addr;
+	msgs[0].len = 2;
+	msgs[0].buf = (u8 *)&wbuf;
 
 	msgs[1].flags = I2C_M_RD;
-	msgs[1].addr  = client->addr;
-	msgs[1].len   = len;
-	msgs[1].buf   = buf;
+	msgs[1].addr = client->addr;
+	msgs[1].len = len;
+	msgs[1].buf = buf;
 
 	ret = i2c_transfer(client->adapter, msgs, 2);
 	return ret < 0 ? ret : (ret != ARRAY_SIZE(msgs) ? -EIO : 0);
@@ -247,10 +247,10 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
 	max_timeout = jiffies + msecs_to_jiffies(GOODIX_BUFFER_STATUS_TIMEOUT);
 	do {
 		error = goodix_i2c_read(ts->client, addr, data,
-					header_contact_keycode_size);
+			header_contact_keycode_size);
 		if (error) {
 			dev_err(&ts->client->dev, "I2C transfer error: %d\n",
-					error);
+				error);
 			return error;
 		}
 
@@ -263,9 +263,9 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
 				addr += header_contact_keycode_size;
 				data += header_contact_keycode_size;
 				error = goodix_i2c_read(ts->client,
-						addr, data,
-						ts->contact_size *
-							(touch_num - 1));
+					addr, data,
+					ts->contact_size *
+					(touch_num - 1));
 				if (error)
 					return error;
 			}
@@ -293,7 +293,7 @@ static void goodix_ts_report_touch_8b(struct goodix_ts_data *ts, u8 *coor_data)
 	input_mt_slot(ts->input_dev, id);
 	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
 	touchscreen_report_pos(ts->input_dev, &ts->prop,
-			       input_x, input_y, true);
+		input_x, input_y, true);
 	input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, input_w);
 	input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, input_w);
 }
@@ -308,7 +308,7 @@ static void goodix_ts_report_touch_9b(struct goodix_ts_data *ts, u8 *coor_data)
 	input_mt_slot(ts->input_dev, id);
 	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
 	touchscreen_report_pos(ts->input_dev, &ts->prop,
-			       input_x, input_y, true);
+		input_x, input_y, true);
 	input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, input_w);
 	input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, input_w);
 }
@@ -325,7 +325,7 @@ static void goodix_ts_report_key(struct goodix_ts_data *ts, u8 *data)
 		for (i = 0; i < GOODIX_MAX_KEYS; i++)
 			if (key_value & BIT(i))
 				input_report_key(ts->input_dev,
-						 ts->keymap[i], 1);
+					ts->keymap[i], 1);
 	} else {
 		for (i = 0; i < GOODIX_MAX_KEYS; i++)
 			input_report_key(ts->input_dev, ts->keymap[i], 0);
@@ -399,8 +399,8 @@ static void goodix_free_irq(struct goodix_ts_data *ts)
 static int goodix_request_irq(struct goodix_ts_data *ts)
 {
 	return devm_request_threaded_irq(&ts->client->dev, ts->client->irq,
-					 NULL, goodix_ts_irq_handler,
-					 ts->irq_flags, ts->client->name, ts);
+		NULL, goodix_ts_irq_handler,
+		ts->irq_flags, ts->client->name, ts);
 }
 
 static int goodix_check_cfg_8(struct goodix_ts_data *ts, const u8 *cfg, int len)
@@ -440,7 +440,7 @@ static void goodix_calc_cfg_checksum_8(struct goodix_ts_data *ts)
 }
 
 static int goodix_check_cfg_16(struct goodix_ts_data *ts, const u8 *cfg,
-			       int len)
+	int len)
 {
 	int i, raw_cfg_len = len - 3;
 	u16 check_sum = 0;
@@ -486,7 +486,7 @@ static void goodix_calc_cfg_checksum_16(struct goodix_ts_data *ts)
 static int goodix_check_cfg(struct goodix_ts_data *ts, const u8 *cfg, int len)
 {
 	if (len < GOODIX_CONFIG_MIN_LENGTH ||
-	    len > GOODIX_CONFIG_MAX_LENGTH) {
+		len > GOODIX_CONFIG_MAX_LENGTH) {
 		dev_err(&ts->client->dev,
 			"The length of the config fw is not correct");
 		return -EINVAL;
@@ -655,11 +655,13 @@ int goodix_reset_no_int_sync(struct goodix_ts_data *ts)
 	 * power. Only do this in the non ACPI case since some ACPI boards
 	 * don't have a pull-up, so there the reset pin must stay active-high.
 	 */
+#if 1
 	if (ts->irq_pin_access_method == IRQ_PIN_ACCESS_GPIO) {
 		error = gpiod_direction_input(ts->gpiod_rst);
 		if (error)
 			goto error;
 	}
+#endif
 
 	return 0;
 
@@ -763,7 +765,7 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
 	ts->gpio_count = 0;
 	ts->gpio_int_idx = -1;
 	ret = acpi_dev_get_resources(ACPI_COMPANION(dev), &resources,
-				     goodix_resource, ts);
+		goodix_resource, ts);
 	if (ret < 0) {
 		dev_err(dev, "Error getting ACPI resources: %d\n", ret);
 		return ret;
@@ -778,8 +780,8 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_GPIO;
 		gpio_mapping = acpi_goodix_int_last_gpios;
 	} else if (ts->gpio_count == 1 && ts->gpio_int_idx == -1 &&
-		   acpi_has_method(ACPI_HANDLE(dev), "INTI") &&
-		   acpi_has_method(ACPI_HANDLE(dev), "INTO")) {
+		acpi_has_method(ACPI_HANDLE(dev), "INTI") &&
+		acpi_has_method(ACPI_HANDLE(dev), "INTO")) {
 		dev_info(dev, "Using ACPI INTI and INTO methods for IRQ pin access\n");
 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_METHOD;
 		gpio_mapping = acpi_goodix_reset_only_gpios;
@@ -789,7 +791,7 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
 		gpio_mapping = acpi_goodix_int_last_gpios;
 	} else {
 		dev_warn(dev, "Unexpected ACPI resources: gpio_count %d, gpio_int_idx %d\n",
-			 ts->gpio_count, ts->gpio_int_idx);
+			ts->gpio_count, ts->gpio_int_idx);
 		return -EINVAL;
 	}
 
@@ -921,10 +923,10 @@ static void goodix_read_config(struct goodix_ts_data *ts)
 	int error;
 
 	error = goodix_i2c_read(ts->client, ts->chip->config_addr,
-				ts->config, 9);
+		ts->config, 9);
 	if (error) {
 		dev_warn(&ts->client->dev, "Error reading config: %d\n",
-			 error);
+			error);
 		ts->int_trigger_type = GOODIX_INT_TRIGGER;
 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
 		return;
@@ -967,7 +969,7 @@ static int goodix_read_version(struct goodix_ts_data *ts)
 	ts->version = get_unaligned_le16(&buf[4]);
 
 	dev_info(&ts->client->dev, "ID %s, version: %04x\n", ts->id,
-		 ts->version);
+		ts->version);
 
 	return 0;
 }
@@ -982,16 +984,31 @@ static int goodix_i2c_test(struct i2c_client *client)
 	int retry = 0;
 	int error;
 	u8 test;
+	bool need_alt = true;
 
-	while (retry++ < 2) {
+	//while (retry++ < 2) {
+	while (retry++ < 4) {
 		error = goodix_i2c_read(client, GOODIX_REG_ID,
-					&test, 1);
+			&test, 1);
 		if (!error)
 			return 0;
 
 		dev_err(&client->dev, "i2c test failed attempt %d: %d\n",
 			retry, error);
 		msleep(20);
+
+		if (retry >= 2 && need_alt) {
+			need_alt = false;
+			unsigned short new;
+			if (client->addr == 0x14)
+				new = 0x5d;
+			else if (client->addr == 0x5d)
+				new = 0x14;
+
+			dev_err(&client->dev, "i2c address(0x%x) is not valid, alternatively set address(0x%x)\n",
+				client->addr, new);
+			client->addr = new;
+		}
 	}
 
 	return error;
@@ -1062,9 +1079,9 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
 		ts->prop.max_y = GOODIX_MAX_HEIGHT - 1;
 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
 		input_abs_set_max(ts->input_dev,
-				  ABS_MT_POSITION_X, ts->prop.max_x);
+			ABS_MT_POSITION_X, ts->prop.max_x);
 		input_abs_set_max(ts->input_dev,
-				  ABS_MT_POSITION_Y, ts->prop.max_y);
+			ABS_MT_POSITION_Y, ts->prop.max_y);
 	}
 
 	if (dmi_check_system(nine_bytes_report)) {
@@ -1081,7 +1098,7 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
 	}
 
 	error = input_mt_init_slots(ts->input_dev, ts->max_touch_num,
-				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+		INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
 	if (error) {
 		dev_err(&ts->client->dev,
 			"Failed to initialize MT slots: %d", error);
@@ -1145,7 +1162,7 @@ static void goodix_disable_regulators(void *arg)
 }
 
 static int goodix_ts_probe(struct i2c_client *client,
-			   const struct i2c_device_id *id)
+	const struct i2c_device_id *id)
 {
 	struct goodix_ts_data *ts;
 	int error;
@@ -1189,7 +1206,7 @@ static int goodix_ts_probe(struct i2c_client *client,
 	}
 
 	error = devm_add_action_or_reset(&client->dev,
-					 goodix_disable_regulators, ts);
+		goodix_disable_regulators, ts);
 	if (error)
 		return error;
 
@@ -1204,7 +1221,7 @@ reset:
 	error = goodix_i2c_test(client);
 	if (error) {
 		if (!ts->reset_controller_at_probe &&
-		    ts->irq_pin_access_method != IRQ_PIN_ACCESS_NONE) {
+			ts->irq_pin_access_method != IRQ_PIN_ACCESS_NONE) {
 			/* Retry after a controller reset */
 			ts->reset_controller_at_probe = true;
 			goto reset;
@@ -1224,13 +1241,13 @@ reset:
 	if (ts->load_cfg_from_disk) {
 		/* update device config */
 		ts->cfg_name = devm_kasprintf(&client->dev, GFP_KERNEL,
-					      "goodix_%s_cfg.bin", ts->id);
+			"goodix_%s_cfg.bin", ts->id);
 		if (!ts->cfg_name)
 			return -ENOMEM;
 
 		error = request_firmware_nowait(THIS_MODULE, true, ts->cfg_name,
-						&client->dev, GFP_KERNEL, ts,
-						goodix_config_cb);
+			&client->dev, GFP_KERNEL, ts,
+			goodix_config_cb);
 		if (error) {
 			dev_err(&client->dev,
 				"Failed to invoke firmware loader: %d\n",
@@ -1286,7 +1303,7 @@ static int __maybe_unused goodix_suspend(struct device *dev)
 	usleep_range(5000, 6000);
 
 	error = goodix_i2c_write_u8(ts->client, GOODIX_REG_COMMAND,
-				    GOODIX_CMD_SCREEN_OFF);
+		GOODIX_CMD_SCREEN_OFF);
 	if (error) {
 		dev_err(&ts->client->dev, "Screen off command failed\n");
 		goodix_irq_direction_input(ts);
@@ -1330,13 +1347,13 @@ static int __maybe_unused goodix_resume(struct device *dev)
 		return error;
 
 	error = goodix_i2c_read(ts->client, ts->chip->config_addr,
-				&config_ver, 1);
+		&config_ver, 1);
 	if (error)
 		dev_warn(dev, "Error reading config version: %d, resetting controller\n",
-			 error);
+			error);
 	else if (config_ver != ts->config[0])
 		dev_info(dev, "Config version mismatch %d != %d, resetting controller\n",
-			 config_ver, ts->config[0]);
+			config_ver, ts->config[0]);
 
 	if (error != 0 || config_ver != ts->config[0]) {
 		error = goodix_reset(ts);
@@ -1376,20 +1393,20 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
 
 #ifdef CONFIG_OF
 static const struct of_device_id goodix_of_match[] = {
-	{ .compatible = "goodix,gt1151" },
-	{ .compatible = "goodix,gt1158" },
-	{ .compatible = "goodix,gt5663" },
-	{ .compatible = "goodix,gt5688" },
-	{ .compatible = "goodix,gt911" },
-	{ .compatible = "goodix,gt9110" },
-	{ .compatible = "goodix,gt912" },
-	{ .compatible = "goodix,gt9147" },
-	{ .compatible = "goodix,gt917s" },
-	{ .compatible = "goodix,gt927" },
-	{ .compatible = "goodix,gt9271" },
-	{ .compatible = "goodix,gt928" },
-	{ .compatible = "goodix,gt9286" },
-	{ .compatible = "goodix,gt967" },
+	{.compatible = "goodix,gt1151" },
+	{.compatible = "goodix,gt1158" },
+	{.compatible = "goodix,gt5663" },
+	{.compatible = "goodix,gt5688" },
+	{.compatible = "goodix,gt911" },
+	{.compatible = "goodix,gt9110" },
+	{.compatible = "goodix,gt912" },
+	{.compatible = "goodix,gt9147" },
+	{.compatible = "goodix,gt917s" },
+	{.compatible = "goodix,gt927" },
+	{.compatible = "goodix,gt9271" },
+	{.compatible = "goodix,gt928" },
+	{.compatible = "goodix,gt9286" },
+	{.compatible = "goodix,gt967" },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, goodix_of_match);

@@ -73,6 +73,9 @@ kernel code가 일부 수정됨.
 - goodix 드라이버 설정 'y'로 함.
 - 인터럽트 핀을 디바이스 트리에 작성함.
 - 리셋 핀을 디바이스 트리에 작성함.
+- default address 0x5d 설정.
+- GT 계열의 경우 INT pin을 이용하여 address를 결정하는데, 해당 시스템의 경우 방향성으로 인한 INT pin을
+제어하지 못하기 때문에 0x14 & 0x5d 가능한 모든 address에 대해 test 하도록 driver 수정. 
 
 ### 7. LVDS bring-up
 - lvds 패널, lvds 포트는 디바이스 트리에 작성됨.

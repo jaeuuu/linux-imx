@@ -230,6 +230,7 @@
 
 &usb_dwc3_0 {
 	dr_mode = "otg";
+	//dr_mode = "host";
 	hnp-disable;
 	srp-disable;
 	adp-disable;

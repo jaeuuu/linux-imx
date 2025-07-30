@@ -62,9 +62,9 @@ static const unsigned int ptn5150_extcon_cable[] = {
 };
 
 static const struct regmap_config ptn5150_regmap_config = {
-	.reg_bits	= 8,
-	.val_bits	= 8,
-	.max_register	= PTN5150_REG_END,
+	.reg_bits = 8,
+	.val_bits = 8,
+	.max_register = PTN5150_REG_END,
 };
 
 static void ptn5150_check_state(struct ptn5150_info *info)
@@ -82,11 +82,13 @@ static void ptn5150_check_state(struct ptn5150_info *info)
 
 	switch (port_status) {
 	case PTN5150_DFP_ATTACHED:
+		dev_info(info->dev, "DFP attached\n");
 		extcon_set_state_sync(info->edev, EXTCON_USB_HOST, false);
 		gpiod_set_value_cansleep(info->vbus_gpiod, 0);
 		extcon_set_state_sync(info->edev, EXTCON_USB, true);
 		break;
 	case PTN5150_UFP_ATTACHED:
+		dev_info(info->dev, "UFP attached\n");
 		extcon_set_state_sync(info->edev, EXTCON_USB, false);
 		vbus = FIELD_GET(PTN5150_REG_CC_VBUS_DETECTION, reg_data);
 		if (vbus)
@@ -97,6 +99,7 @@ static void ptn5150_check_state(struct ptn5150_info *info)
 		extcon_set_state_sync(info->edev, EXTCON_USB_HOST, true);
 		break;
 	default:
+		dev_err(info->dev, "unknown port_status %d\n", port_status);
 		break;
 	}
 }
@@ -104,7 +107,7 @@ static void ptn5150_check_state(struct ptn5150_info *info)
 static void ptn5150_irq_work(struct work_struct *work)
 {
 	struct ptn5150_info *info = container_of(work,
-			struct ptn5150_info, irq_work);
+		struct ptn5150_info, irq_work);
 	int ret = 0;
 	unsigned int int_status;
 
@@ -129,16 +132,16 @@ static void ptn5150_irq_work(struct work_struct *work)
 			ptn5150_check_state(info);
 		} else {
 			extcon_set_state_sync(info->edev,
-					EXTCON_USB_HOST, false);
+				EXTCON_USB_HOST, false);
 			extcon_set_state_sync(info->edev,
-					EXTCON_USB, false);
+				EXTCON_USB, false);
 			gpiod_set_value_cansleep(info->vbus_gpiod, 0);
 		}
 	}
 
 	/* Clear interrupt. Read would clear the register */
 	ret = regmap_read(info->regmap, PTN5150_REG_INT_REG_STATUS,
-			&int_status);
+		&int_status);
 	if (ret) {
 		dev_err(info->dev,
 			"failed to read INT REG STATUS %d\n", ret);
@@ -236,7 +239,7 @@ static int ptn5150_i2c_probe(struct i2c_client *i2c)
 	info->regmap = devm_regmap_init_i2c(i2c, &ptn5150_regmap_config);
 	if (IS_ERR(info->regmap)) {
 		return dev_err_probe(info->dev, PTR_ERR(info->regmap),
-				     "failed to allocate register map\n");
+			"failed to allocate register map\n");
 	}
 
 	if (i2c->irq > 0) {
@@ -245,7 +248,7 @@ static int ptn5150_i2c_probe(struct i2c_client *i2c)
 		info->int_gpiod = devm_gpiod_get(&i2c->dev, "int", GPIOD_IN);
 		if (IS_ERR(info->int_gpiod)) {
 			return dev_err_probe(dev, PTR_ERR(info->int_gpiod),
-					     "failed to get INT GPIO\n");
+				"failed to get INT GPIO\n");
 		}
 
 		info->irq = gpiod_to_irq(info->int_gpiod);
@@ -256,10 +259,10 @@ static int ptn5150_i2c_probe(struct i2c_client *i2c)
 	}
 
 	ret = devm_request_threaded_irq(dev, info->irq, NULL,
-					ptn5150_irq_handler,
-					IRQF_TRIGGER_FALLING |
-					IRQF_ONESHOT,
-					i2c->name, info);
+		ptn5150_irq_handler,
+		IRQF_TRIGGER_FALLING |
+		IRQF_ONESHOT,
+		i2c->name, info);
 	if (ret < 0) {
 		dev_err(dev, "failed to request handler for INTB IRQ\n");
 		return ret;
@@ -274,17 +277,18 @@ static int ptn5150_i2c_probe(struct i2c_client *i2c)
 
 	/* Register extcon device */
 	ret = devm_extcon_dev_register(info->dev, info->edev);
+
 	if (ret) {
 		dev_err(info->dev, "failed to register extcon device\n");
 		return ret;
 	}
 
 	extcon_set_property_capability(info->edev, EXTCON_USB,
-					EXTCON_PROP_USB_VBUS);
+		EXTCON_PROP_USB_VBUS);
 	extcon_set_property_capability(info->edev, EXTCON_USB_HOST,
-					EXTCON_PROP_USB_VBUS);
+		EXTCON_PROP_USB_VBUS);
 	extcon_set_property_capability(info->edev, EXTCON_USB_HOST,
-					EXTCON_PROP_USB_TYPEC_POLARITY);
+		EXTCON_PROP_USB_TYPEC_POLARITY);
 
 	/* Initialize PTN5150 device and print vendor id and version id */
 	ret = ptn5150_init_dev_type(info);
@@ -307,7 +311,7 @@ static int ptn5150_i2c_probe(struct i2c_client *i2c)
 }
 
 static const struct of_device_id ptn5150_dt_match[] = {
-	{ .compatible = "nxp,ptn5150" },
+	{.compatible = "nxp,ptn5150" },
 	{ },
 };
 MODULE_DEVICE_TABLE(of, ptn5150_dt_match);
@@ -319,11 +323,11 @@ static const struct i2c_device_id ptn5150_i2c_id[] = {
 MODULE_DEVICE_TABLE(i2c, ptn5150_i2c_id);
 
 static struct i2c_driver ptn5150_i2c_driver = {
-	.driver		= {
-		.name	= "ptn5150",
+	.driver = {
+		.name = "ptn5150",
 		.of_match_table = ptn5150_dt_match,
 	},
-	.probe_new	= ptn5150_i2c_probe,
+	.probe_new = ptn5150_i2c_probe,
 	.id_table = ptn5150_i2c_id,
 };
 module_i2c_driver(ptn5150_i2c_driver);

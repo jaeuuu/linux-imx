@@ -205,6 +205,7 @@
 	lvds-panel {
 		compatible = "solics,ec101-1024600w-d025";
 		status = "okay";
+		power-supply = <&reg_panel_pwr>;
 
 		port {
 			lvds0_in: endpoint {
@@ -217,7 +218,7 @@
 &flexspi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_flexspi0>;
-	status = "disabled";
+	status = "okay";
 
 	flash0: mt25qu256aba@0 {
 		reg = <0>;
@@ -409,15 +410,16 @@
 };
 
 &i2c2 {
-	gt928: touchscreen@14 {
+	gt928: touchscreen@5d {
 		compatible = "goodix,gt928";
-		reg = <0x14>;
+		reg = <0x5d>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_ts>;
 		interrupt-parent = <&gpio4>;
 		interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
 		irq-gpios = <&gpio4 25 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&gpio4 29 GPIO_ACTIVE_HIGH>;
+		//reset-gpios = <&gpio2 0 GPIO_ACTIVE_HIGH>;
 		edge-failling-trigger;
 		touchscreen-size-x = <1024>;
 		touchscreen-size-y = <600>;
