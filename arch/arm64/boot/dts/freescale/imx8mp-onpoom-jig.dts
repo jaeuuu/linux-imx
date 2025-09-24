@@ -293,7 +293,7 @@
 		//interrupt-parent;
 		//interrupts;
 		//microchip,irq-mirror;
-		//reset-gpios = <&gpio4 24 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&gpio4 24 GPIO_ACTIVE_LOW>;
 		spi-max-frequency = <1000000>;		/* 10mhz */
 	};
 /*
@@ -432,11 +432,13 @@
 	pinctrl-0 = <&pinctrl_i2c3>;
 	status = "okay";
 
-	mp3390c: backlight@17 {
+	mp3309c: backlight@17 {
 		compatible = "mps,mp3309c";
 		reg = <0x17>;
 		enable-gpios = <&gpio4 19 GPIO_ACTIVE_HIGH>;	/* switch control */
 		default-brightness = <24>;
+		/* disabled for jig board dip s/w test */
+		status = "disabled";
 	};
 
 	pca6416: gpio@20 {
@@ -446,10 +448,11 @@
 		pinctrl-0 = <&pinctrl_pca6416>;
 		gpio-controller;
 		#gpio-cells = <2>;
-		interrupt-controller;
-		#interrupt-cells = <2>;
-		interrupt-parent = <&gpio1>;
-		interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
+		/* disabled for jig board dip s/w test */
+		//interrupt-controller;
+		//#interrupt-cells = <2>;
+		//interrupt-parent = <&gpio1>;
+		//interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
 		reset-gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
 	};
 
@@ -490,6 +493,7 @@
 	ina260: hwmon@40 {
 		compatible = "ti,ina260";
 		reg = <0x40>;
+		status = "disabled";
 	};
 };
 
@@ -617,8 +621,8 @@
 &pcie {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pcie>;
-	disable-gpio = <&gpio2 6 GPIO_ACTIVE_LOW>;
-	reset-gpio = <&gpio2 7 GPIO_ACTIVE_LOW>;
+	//disable-gpio = <&gpio2 6 GPIO_ACTIVE_LOW>;
+	//reset-gpio = <&gpio2 7 GPIO_ACTIVE_LOW>;
 	ext_osc = <1>;
 	clocks = <&clk IMX8MP_CLK_HSIO_ROOT>,
 		 <&clk IMX8MP_CLK_PCIE_AUX>,
@@ -775,10 +779,31 @@
 			 * M.2 pin20 & pin21 need to be set to 11 for 88W9098 to select the
 			 * default Reference Clock Frequency
 			 */
-			MX8MP_IOMUXC_SD1_DATA7__GPIO2_IO09		0x1c4
+			//MX8MP_IOMUXC_SD1_DATA7__GPIO2_IO09		0x1c4
 
 			/* CPLD IN, default pull-up state */
 			//MX8MP_IOMUXC_SAI5_RXC__GPIO3_IO20		0x150
+
+			/* jig board dip s/w pins */
+			MX8MP_IOMUXC_GPIO1_IO07__GPIO1_IO07		0X10
+			MX8MP_IOMUXC_GPIO1_IO08__GPIO1_IO08		0x10
+			MX8MP_IOMUXC_GPIO1_IO13__GPIO1_IO13		0x10
+			MX8MP_IOMUXC_SD1_CLK__GPIO2_IO00		0x10
+			MX8MP_IOMUXC_SD1_CMD__GPIO2_IO01		0x10
+			MX8MP_IOMUXC_SD1_DATA0__GPIO2_IO02		0x10
+			MX8MP_IOMUXC_SD1_DATA1__GPIO2_IO03		0x10
+			MX8MP_IOMUXC_SD1_DATA2__GPIO2_IO04		0x10
+			MX8MP_IOMUXC_SD1_DATA3__GPIO2_IO05		0x10
+			MX8MP_IOMUXC_SD1_DATA4__GPIO2_IO06		0x10
+			MX8MP_IOMUXC_SD1_DATA5__GPIO2_IO07		0x10
+			MX8MP_IOMUXC_SD1_DATA6__GPIO2_IO08		0x10
+			MX8MP_IOMUXC_SD1_DATA7__GPIO2_IO09		0x10
+			MX8MP_IOMUXC_SD1_RESET_B__GPIO2_IO10	0x10
+			MX8MP_IOMUXC_SD2_WP__GPIO2_IO20			0x10
+			MX8MP_IOMUXC_SAI1_RXFS__GPIO4_IO00		0x10
+			MX8MP_IOMUXC_SAI1_TXD6__GPIO4_IO18		0x10
+			MX8MP_IOMUXC_SAI1_TXD7__GPIO4_IO19		0x10A
+			MX8MP_IOMUXC_SAI1_MCLK__GPIO4_IO20		0x10
 		>;
 	};
 
@@ -916,8 +941,8 @@
 	pinctrl_pcie: pciegrp {
 		fsl,pins = <
 			//MX8MP_IOMUXC_I2C4_SCL__PCIE_CLKREQ_B		0x60 /* open drain, pull up */
-			MX8MP_IOMUXC_SD1_DATA4__GPIO2_IO06		0x40
-			MX8MP_IOMUXC_SD1_DATA5__GPIO2_IO07		0x40
+			// MX8MP_IOMUXC_SD1_DATA4__GPIO2_IO06		0x40
+			// MX8MP_IOMUXC_SD1_DATA5__GPIO2_IO07		0x40
 			//MX8MP_IOMUXC_I2C4_SDA__GPIO5_IO21		0x1c4
 		>;
 	};
@@ -1056,7 +1081,7 @@
 
 	pinctrl_pca6416: pca6416grp {
 		fsl,pins = <
-			MX8MP_IOMUXC_GPIO1_IO13__GPIO1_IO13		0x10	/* pca6416 interrupt */
+			//MX8MP_IOMUXC_GPIO1_IO13__GPIO1_IO13		0x10	/* pca6416 interrupt */
 			MX8MP_IOMUXC_GPIO1_IO14__GPIO1_IO14		0x10	/* pca6416 reset */
 		>;
 	};
