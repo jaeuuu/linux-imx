@@ -22,6 +22,8 @@ Optional properties:
 - wakeup-source: Boolean, rotary encoder can wake up the system.
 - rotary-encoder,encoding: String, the method used to encode steps.
   Supported are "gray" (the default and more common) and "binary".
+- rotary-encoder,push-button:
+- pb-gpios: 
 
 Deprecated properties:
 - rotary-encoder,half-period: Makes the driver work on half-period mode.

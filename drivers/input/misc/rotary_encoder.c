@@ -51,6 +51,10 @@ struct rotary_encoder {
 	signed char dir;	/* 1 - clockwise, -1 - CCW */
 
 	unsigned int last_stable;
+#if 1	/* by jaewoo */
+	bool push_button;
+	struct gpio_desc *pb_gpio;
+#endif
 };
 
 static unsigned int rotary_encoder_get_state(struct rotary_encoder *encoder)
@@ -75,7 +79,7 @@ static void rotary_encoder_report_event(struct rotary_encoder *encoder)
 {
 	if (encoder->relative_axis) {
 		input_report_rel(encoder->input,
-				 encoder->axis, encoder->dir);
+			encoder->axis, encoder->dir);
 	} else {
 		unsigned int pos = encoder->pos;
 
@@ -100,6 +104,27 @@ static void rotary_encoder_report_event(struct rotary_encoder *encoder)
 
 	input_sync(encoder->input);
 }
+
+#if 1	/* by jaewoo */
+static irqreturn_t rotary_encoder_push_button_irq(int irq, void *dev_id)
+{
+	struct rotary_encoder *encoder = dev_id;
+	unsigned int state;
+
+	mutex_lock(&encoder->access_mutex);
+
+	/* active-low, so if low, state is high(1) */
+	state = gpiod_get_value_cansleep(encoder->pb_gpio);
+
+	input_report_key(encoder->input, BTN_0, state);
+
+	input_sync(encoder->input);
+
+	mutex_unlock(&encoder->access_mutex);
+
+	return IRQ_HANDLED;
+}
+#endif
 
 static irqreturn_t rotary_encoder_irq(int irq, void *dev_id)
 {
@@ -191,6 +216,9 @@ static int rotary_encoder_probe(struct platform_device *pdev)
 	u32 steps_per_period;
 	unsigned int i;
 	int err;
+#if 1	/* by jaewoo */
+	unsigned int ndescs;
+#endif
 
 	encoder = devm_kzalloc(dev, sizeof(struct rotary_encoder), GFP_KERNEL);
 	if (!encoder)
@@ -201,7 +229,7 @@ static int rotary_encoder_probe(struct platform_device *pdev)
 	device_property_read_u32(dev, "rotary-encoder,steps", &encoder->steps);
 
 	err = device_property_read_u32(dev, "rotary-encoder,steps-per-period",
-				       &steps_per_period);
+		&steps_per_period);
 	if (err) {
 		/*
 		 * The 'half-period' property has been deprecated, you must
@@ -211,19 +239,19 @@ static int rotary_encoder_probe(struct platform_device *pdev)
 		 * per period behavior.
 		 */
 		steps_per_period = device_property_read_bool(dev,
-					"rotary-encoder,half-period") ? 2 : 1;
+			"rotary-encoder,half-period") ? 2 : 1;
 	}
 
 	encoder->rollover =
 		device_property_read_bool(dev, "rotary-encoder,rollover");
 
 	if (!device_property_present(dev, "rotary-encoder,encoding") ||
-	    !device_property_match_string(dev, "rotary-encoder,encoding",
-					  "gray")) {
+		!device_property_match_string(dev, "rotary-encoder,encoding",
+			"gray")) {
 		dev_info(dev, "gray");
 		encoder->encoding = ROTENC_GRAY;
 	} else if (!device_property_match_string(dev, "rotary-encoder,encoding",
-						 "binary")) {
+		"binary")) {
 		dev_info(dev, "binary");
 		encoder->encoding = ROTENC_BINARY;
 	} else {
@@ -246,6 +274,20 @@ static int rotary_encoder_probe(struct platform_device *pdev)
 		dev_err(dev, "not enough gpios found\n");
 		return -EINVAL;
 	}
+#if 1	/* by jaewoo */
+	encoder->push_button =
+		device_property_read_bool(dev, "rotary-encoder,push-button");
+
+	if (encoder->push_button) {
+		encoder->pb_gpio = devm_gpiod_get(dev, "pb", GPIOD_IN);
+		if (IS_ERR(encoder->pb_gpio)) {
+			err = PTR_ERR(encoder->pb_gpio);
+			if (err != -EPROBE_DEFER)
+				dev_err(dev, "unable to get pb-gpio: %d\n", err);
+			return err;
+		}
+	}
+#endif
 
 	input = devm_input_allocate_device(dev);
 	if (!input)
@@ -261,7 +303,11 @@ static int rotary_encoder_probe(struct platform_device *pdev)
 		input_set_capability(input, EV_REL, encoder->axis);
 	else
 		input_set_abs_params(input,
-				     encoder->axis, 0, encoder->steps, 0, 1);
+			encoder->axis, 0, encoder->steps, 0, 1);
+#if 1	/* by jaewoo */
+	if (encoder->push_button)
+		input_set_capability(input, EV_KEY, BTN_0);
+#endif
 
 	switch (steps_per_period >> (encoder->gpios->ndescs - 2)) {
 	case 4:
@@ -281,10 +327,13 @@ static int rotary_encoder_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+#if 1		/* by jaewoo */
+	if (encoder->push_button)
+		ndescs = encoder->gpios->ndescs + 1;
 	encoder->irq =
 		devm_kcalloc(dev,
-			     encoder->gpios->ndescs, sizeof(*encoder->irq),
-			     GFP_KERNEL);
+			ndescs, sizeof(*encoder->irq),
+			GFP_KERNEL);
 	if (!encoder->irq)
 		return -ENOMEM;
 
@@ -292,16 +341,28 @@ static int rotary_encoder_probe(struct platform_device *pdev)
 		encoder->irq[i] = gpiod_to_irq(encoder->gpios->desc[i]);
 
 		err = devm_request_threaded_irq(dev, encoder->irq[i],
-				NULL, handler,
-				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
-				IRQF_ONESHOT,
-				DRV_NAME, encoder);
+			NULL, handler,
+			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
+			IRQF_ONESHOT,
+			DRV_NAME, encoder);
 		if (err) {
 			dev_err(dev, "unable to request IRQ %d (gpio#%d)\n",
 				encoder->irq[i], i);
 			return err;
 		}
 	}
+
+	if (encoder->push_button) {
+		encoder->irq[encoder->gpios->ndescs] = gpiod_to_irq(encoder->pb_gpio);
+		err = devm_request_threaded_irq(dev, encoder->irq[encoder->gpios->ndescs], NULL, rotary_encoder_push_button_irq,
+			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING | IRQF_ONESHOT, DRV_NAME, encoder);
+		if (err) {
+			dev_err(dev, "unable to request IRQ %d (gpio for push button)\n",
+				encoder->irq[encoder->gpios->ndescs]);
+			return err;
+		}
+	}
+#endif
 
 	err = input_register_device(input);
 	if (err) {
@@ -310,7 +371,7 @@ static int rotary_encoder_probe(struct platform_device *pdev)
 	}
 
 	device_init_wakeup(dev,
-			   device_property_read_bool(dev, "wakeup-source"));
+		device_property_read_bool(dev, "wakeup-source"));
 
 	platform_set_drvdata(pdev, encoder);
 
@@ -344,21 +405,21 @@ static int __maybe_unused rotary_encoder_resume(struct device *dev)
 }
 
 static SIMPLE_DEV_PM_OPS(rotary_encoder_pm_ops,
-			 rotary_encoder_suspend, rotary_encoder_resume);
+	rotary_encoder_suspend, rotary_encoder_resume);
 
 #ifdef CONFIG_OF
 static const struct of_device_id rotary_encoder_of_match[] = {
-	{ .compatible = "rotary-encoder", },
+	{.compatible = "rotary-encoder", },
 	{ },
 };
 MODULE_DEVICE_TABLE(of, rotary_encoder_of_match);
 #endif
 
 static struct platform_driver rotary_encoder_driver = {
-	.probe		= rotary_encoder_probe,
-	.driver		= {
-		.name	= DRV_NAME,
-		.pm	= &rotary_encoder_pm_ops,
+	.probe = rotary_encoder_probe,
+	.driver = {
+		.name = DRV_NAME,
+		.pm = &rotary_encoder_pm_ops,
 		.of_match_table = of_match_ptr(rotary_encoder_of_match),
 	}
 };
