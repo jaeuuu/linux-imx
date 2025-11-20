@@ -452,6 +452,17 @@ config LEDS_LP8860
 	  on the LP8860 4 channel LED driver using the I2C communication
 	  bus.
 
+config LEDS_LP8864
+	tristate "LED support for the TI LP8864 4 channel LED driver"
+	depends on LEDS_CLASS && I2C && OF
+	select REGMAP_I2C
+	help
+	  If you say yes here you get support for the TI LP8864 4 channel
+	  LED driver.
+	  This option enables support for the display cluster LEDs
+	  on the LP8864 4 channel LED driver using the I2C communication
+	  bus.
+
 config LEDS_CLEVO_MAIL
 	tristate "Mail LED on Clevo notebook"
 	depends on LEDS_CLASS
