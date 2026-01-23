@@ -10,103 +10,116 @@
 
 static int mcp230xx_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
-	struct device *dev = &client->dev;
-	unsigned int type = id->driver_data;
-	struct mcp23s08 *mcp;
-	int ret;
+    struct device *dev = &client->dev;
+    unsigned int type = id->driver_data;
+    struct mcp23s08 *mcp;
+    int ret;
 
-	mcp = devm_kzalloc(dev, sizeof(*mcp), GFP_KERNEL);
-	if (!mcp)
-		return -ENOMEM;
+    mcp = devm_kzalloc(dev, sizeof(*mcp), GFP_KERNEL);
+    if (!mcp)
+        return -ENOMEM;
 
-	switch (type) {
-	case MCP_TYPE_008:
-		mcp->regmap = devm_regmap_init_i2c(client, &mcp23x08_regmap);
-		mcp->reg_shift = 0;
-		mcp->chip.ngpio = 8;
-		mcp->chip.label = "mcp23008";
-		break;
+    switch (type) {
+    case MCP_TYPE_008:
+        mcp->regmap = devm_regmap_init_i2c(client, &mcp23x08_regmap);
+        mcp->reg_shift = 0;
+        mcp->chip.ngpio = 8;
+        mcp->chip.label = "mcp23008";
+        break;
 
-	case MCP_TYPE_017:
-		mcp->regmap = devm_regmap_init_i2c(client, &mcp23x17_regmap);
-		mcp->reg_shift = 1;
-		mcp->chip.ngpio = 16;
-		mcp->chip.label = "mcp23017";
-		break;
+    case MCP_TYPE_017:
+        mcp->regmap = devm_regmap_init_i2c(client, &mcp23x17_regmap);
+        mcp->reg_shift = 1;
+        mcp->chip.ngpio = 16;
+        mcp->chip.label = "mcp23017";
+        break;
 
-	case MCP_TYPE_018:
-		mcp->regmap = devm_regmap_init_i2c(client, &mcp23x17_regmap);
-		mcp->reg_shift = 1;
-		mcp->chip.ngpio = 16;
-		mcp->chip.label = "mcp23018";
-		break;
+    case MCP_TYPE_018:
+        mcp->regmap = devm_regmap_init_i2c(client, &mcp23x17_regmap);
+        mcp->reg_shift = 1;
+        mcp->chip.ngpio = 16;
+        mcp->chip.label = "mcp23018";
+        break;
 
-	default:
-		dev_err(dev, "invalid device type (%d)\n", type);
-		return -EINVAL;
-	}
+    default:
+        dev_err(dev, "invalid device type (%d)\n", type);
+        return -EINVAL;
+    }
 
-	if (IS_ERR(mcp->regmap))
-		return PTR_ERR(mcp->regmap);
+    if (IS_ERR(mcp->regmap))
+        return PTR_ERR(mcp->regmap);
 
-	mcp->irq = client->irq;
-	mcp->pinctrl_desc.name = "mcp23xxx-pinctrl";
+    mcp->irq = client->irq;
+    mcp->pinctrl_desc.name = "mcp23xxx-pinctrl";
 
-	ret = mcp23s08_probe_one(mcp, dev, client->addr, type, -1);
-	if (ret)
-		return ret;
+    ret = mcp23s08_probe_one(mcp, dev, client->addr, type, -1);
+    if (ret)
+        return ret;
 
-	i2c_set_clientdata(client, mcp);
+    i2c_set_clientdata(client, mcp);
 
-	return 0;
+    return 0;
 }
 
+#if 0
+static int mcp230xx_remove(struct i2c_client *client)
+{
+    pr_notice("remove mcp230xx driver [ irq: %d, addr: %02x]\n", client->irq, client->addr);
+    mcp23s08_free_irq(&client->dev, client->irq, client->dev.driver_data);
+
+    return 0;
+}
+#endif
+
 static const struct i2c_device_id mcp230xx_id[] = {
-	{ "mcp23008", MCP_TYPE_008 },
-	{ "mcp23017", MCP_TYPE_017 },
-	{ "mcp23018", MCP_TYPE_018 },
-	{ }
+    { "mcp23008", MCP_TYPE_008 },
+    { "mcp23017", MCP_TYPE_017 },
+    { "mcp23018", MCP_TYPE_018 },
+    { }
 };
 MODULE_DEVICE_TABLE(i2c, mcp230xx_id);
 
 static const struct of_device_id mcp23s08_i2c_of_match[] = {
-	{
-		.compatible = "microchip,mcp23008",
-		.data = (void *) MCP_TYPE_008,
-	},
-	{
-		.compatible = "microchip,mcp23017",
-		.data = (void *) MCP_TYPE_017,
-	},
-	{
-		.compatible = "microchip,mcp23018",
-		.data = (void *) MCP_TYPE_018,
-	},
-/* NOTE: The use of the mcp prefix is deprecated and will be removed. */
-	{
-		.compatible = "mcp,mcp23008",
-		.data = (void *) MCP_TYPE_008,
-	},
-	{
-		.compatible = "mcp,mcp23017",
-		.data = (void *) MCP_TYPE_017,
-	},
-	{ }
+    {
+        .compatible = "microchip,mcp23008",
+        .data = (void *)MCP_TYPE_008,
+    },
+    {
+        .compatible = "microchip,mcp23017",
+        .data = (void *)MCP_TYPE_017,
+    },
+    {
+        .compatible = "microchip,mcp23018",
+        .data = (void *)MCP_TYPE_018,
+    },
+    /* NOTE: The use of the mcp prefix is deprecated and will be removed. */
+        {
+            .compatible = "mcp,mcp23008",
+            .data = (void *)MCP_TYPE_008,
+        },
+        {
+            .compatible = "mcp,mcp23017",
+            .data = (void *)MCP_TYPE_017,
+        },
+        { }
 };
 MODULE_DEVICE_TABLE(of, mcp23s08_i2c_of_match);
 
 static struct i2c_driver mcp230xx_driver = {
-	.driver = {
-		.name	= "mcp230xx",
-		.of_match_table = mcp23s08_i2c_of_match,
-	},
-	.probe		= mcp230xx_probe,
-	.id_table	= mcp230xx_id,
+    .driver = {
+        .name = "mcp230xx",
+        .of_match_table = mcp23s08_i2c_of_match,
+    },
+    .probe = mcp230xx_probe,
+    .id_table = mcp230xx_id,
+#if 0
+    .remove = mcp230xx_remove,
+#endif
 };
 
 static int __init mcp23s08_i2c_init(void)
 {
-	return i2c_add_driver(&mcp230xx_driver);
+    return i2c_add_driver(&mcp230xx_driver);
 }
 
 /*
@@ -117,7 +130,7 @@ subsys_initcall(mcp23s08_i2c_init);
 
 static void mcp23s08_i2c_exit(void)
 {
-	i2c_del_driver(&mcp230xx_driver);
+    i2c_del_driver(&mcp230xx_driver);
 }
 module_exit(mcp23s08_i2c_exit);
 

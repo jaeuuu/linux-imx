@@ -37,7 +37,7 @@
 		off-on-delay-us = <35000>;      /* boot delay */
 	};
 
-	pwm-leds {
+	pwm_leds: pwm-leds {
 		compatible = "pwm-leds";
 
 		wdog-strobe {

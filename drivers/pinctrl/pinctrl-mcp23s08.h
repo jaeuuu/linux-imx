@@ -23,31 +23,35 @@ struct regmap;
 struct pinctrl_dev;
 
 struct mcp23s08 {
-	u8			addr;
-	bool			irq_active_high;
-	bool			reg_shift;
+    u8			addr;
+    bool			irq_active_high;
+    bool			reg_shift;
 
-	u16			irq_rise;
-	u16			irq_fall;
-	int			irq;
-	bool			irq_controller;
-	int			cached_gpio;
-	/* lock protects regmap access with bypass/cache flags */
-	struct mutex		lock;
+    u16			irq_rise;
+    u16			irq_fall;
+    int			irq;
+    bool			irq_controller;
+    int			cached_gpio;
+    /* lock protects regmap access with bypass/cache flags */
+    struct mutex		lock;
 
-	struct gpio_chip	chip;
-	struct irq_chip		irq_chip;
+    struct gpio_chip	chip;
+    struct irq_chip		irq_chip;
 
-	struct regmap		*regmap;
-	struct device		*dev;
+    struct regmap *regmap;
+    struct device *dev;
 
-	struct pinctrl_dev	*pctldev;
-	struct pinctrl_desc	pinctrl_desc;
-	struct gpio_desc        *reset_gpio;
+    struct pinctrl_dev *pctldev;
+    struct pinctrl_desc	pinctrl_desc;
+    struct gpio_desc *reset_gpio;
 };
 
 extern const struct regmap_config mcp23x08_regmap;
 extern const struct regmap_config mcp23x17_regmap;
 
 int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
-		       unsigned int addr, unsigned int type, unsigned int base);
+    unsigned int addr, unsigned int type, unsigned int base);
+
+#if 0
+void mcp23s08_free_irq(struct device *dev, unsigned int irq, struct mcp23s08 *mcp);
+#endif
