@@ -108,6 +108,7 @@ static bool mcp23x17_volatile_register(struct device *dev, unsigned int reg)
     case MCP_INTF:
     case MCP_INTCAP:
     case MCP_GPIO:
+    case MCP_OLAT:  /* latch 초기화 방지 */
         return true;
     default:
         return false;
@@ -474,9 +475,9 @@ static void mcp23s08_irq_unmask(struct irq_data *data)
 
     mcp_set_bit(mcp, MCP_GPINTEN, pos, true);
 
-    unsigned int gpinten;
-    mcp_read(mcp, MCP_GPINTEN, &gpinten);
-    pr_notice("gpinten: [ 0x%02x ]\n", gpinten);
+    //unsigned int gpinten;
+    //mcp_read(mcp, MCP_GPINTEN, &gpinten);
+    //pr_notice("gpinten: [ 0x%02x ]\n", gpinten);
 }
 
 static int mcp23s08_irq_set_type(struct irq_data *data, unsigned int type)
@@ -595,9 +596,13 @@ int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
      * and MCP_IOCON.HAEN = 1, so we work with all chips.
      */
      /* for debug, when ic is reseted. */
-     // gpiod_direction_output(mcp->reset_gpio, 0);
-     // msleep(10);
-     // gpiod_direction_output(mcp->reset_gpio, 1);
+    if (mcp->reset_gpio) {
+        gpiod_direction_output(mcp->reset_gpio, 1);
+        msleep(1);
+        gpiod_direction_output(mcp->reset_gpio, 0);
+        msleep(1);
+    } else
+        dev_info(dev, "can't find and control reset gpio for some reason.");
 #if 0
     unsigned dir;
     ret = mcp_read(mcp, MCP_IODIR, &dir);
@@ -688,6 +693,8 @@ int mcp23s08_probe_one(struct mcp23s08 *mcp, struct device *dev,
         if (ret)
             return dev_err_probe(dev, ret, "can't setup IRQ\n");
     }
+
+    dev_info(dev, "mcp23s08 probed.\n");
 
     return 0;
 }

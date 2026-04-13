@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config MISC_ADAU1442
+	tristate "Analog Devices ADAU1442 SigmaDSP audio processor"
+	depends on I2C
+	select REGMAP_I2C
+	help
+	  Driver for the Analog Devices ADAU1442 SigmaDSP audio processor.
+
+	  Controls audio routing via I2C and exposes /dev/adau1442 for
+	  userspace parameter control using safeload.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called adau1442.

@@ -124,3 +124,36 @@ v4l2-ctl --device /dev/video3 \
         --steram-to=frame.raw \
         --stream-count =1
 ```
+
+## i24_board
+
+Brought-up by ONPOOM Corp.
+
+This board is based on ONPOOM Corp's imx8m-plus som_8gb_board & jig_board and consists of various interfaces(usb, uart, usdhc, i2c, i2s, spi, mipi-csi, mipi-=dsi, lvds, etc.) for testing.
+
+First, please refer to devicetree. <arch/arm64/boot/dts/freescale/imx8mp-onpoom-i24.dts>
+
+### 1. Rotary-encoder bring-up
+- Add Push-Button Event
+
+### 2. Backlight IC bring-up
+- Use lp8866 ic.
+- lp8864/8866 driver is written by referring to linux kernel v6.16 (drvier/leds/lp8864.c)
+
+### 3. I2C-IO IC bring-up
+- Use mcp23s17 ic.
+- Partial register regmap changed.
+
+### 4. Amp & Speaker IC bring-up
+- Use bd28623 ic.
+- Add 96000Hz Samplerate.
+
+### 5. i2cdev driver bring-up
+- Changed max transmission size from 8192 to 65536.
+- Because of previous legacy size predicted.
+- For DSP ADAU1442 safeload.
+
+### 6. ADCs IC bring-up
+- Use ads7830 ic.
+- Use ads7828 driver. (drivers/hwmon/ads7828.c)
+- 8ch ADCs.
