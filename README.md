@@ -135,6 +135,7 @@ First, please refer to devicetree. <arch/arm64/boot/dts/freescale/imx8mp-onpoom-
 
 ### 1. Rotary-encoder bring-up
 - Add Push-Button Event
+- Changed key event kind by direction.
 
 ### 2. Backlight IC bring-up
 - Use lp8866 ic.

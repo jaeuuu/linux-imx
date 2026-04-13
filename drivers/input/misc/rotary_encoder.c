@@ -82,14 +82,16 @@ static void rotary_encoder_report_event(struct rotary_encoder *encoder)
         //     encoder->axis, encoder->dir);
         // input_report_rel(encoder->input,
         //     REL_WHEEL, encoder->dir);
-        if (encoder->dir < 0) {
+        if (encoder->dir > 0) {
             input_report_key(encoder->input, KEY_UP, 1);
             input_sync(encoder->input);
             input_report_key(encoder->input, KEY_UP, 0);
-        } else if (encoder->dir > 0) {
+            input_sync(encoder->input);
+        } else if (encoder->dir < 0) {
             input_report_key(encoder->input, KEY_DOWN, 1);
             input_sync(encoder->input);
             input_report_key(encoder->input, KEY_DOWN, 0);
+            input_sync(encoder->input);
         }
     } else {
         unsigned int pos = encoder->pos;
